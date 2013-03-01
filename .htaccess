@@ -1,0 +1,54 @@
+# enable apache morRewrite module #
+RewriteEngine on
+
+RewriteBase /
+
+# set files headers
+<IfModule mod_headers.c>
+<FilesMatch "\.(css|js|png|gif|jpg|jpeg|htc)$">
+Header set Cache-Control "max-age=2678400, public, must-revalidate"
+</FilesMatch>
+</IfModule>
+
+# deflate static content
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/x-component text/css application/x-javascript application/javascript
+</IfModule>
+
+# allow request methods
+<Limit POST PUT DELETE GET OPTIONS HEAD>
+   Order deny,allow
+   Allow from All
+</Limit>
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+ErrorDocument 404 /404.html
+
+# non last slash redirect
+RewriteCond %{REQUEST_URI} !(\.php|\.html|\.xml|\.txt|[\/])$ [NC]
+RewriteRule ^(.*)$ http://%{HTTP_HOST}/$1/ [NC,L,R=301]
+
+# define system languages
+#RewriteRule ^([a-zA-Z]{2})$ index.php?page=$1 [QSA,L]
+
+# define paging
+RewriteRule ^([^//]+)/?(.*)?/index([0-9]*).ht(m?ml?)$ index.php?page=$1&rlVareables=$2&pg=$3 [QSA,L]
+
+# define listing
+RewriteRule ^(([\w\-\_]+)?/)(.+)-l?([0-9]+).ht(m|ml)$ index.php?page=$2&rlVareables=$3&listing_id=$4 [QSA,L]
+
+# wildcard request
+RewriteCond %{HTTP_HOST} ^((?!www\.|m\.|mobile\.).*)\..+\.[^/]+$ [NC]
+#RewriteCond %{HTTP_HOST} ^((?!www\.|m\.|mobile\.).*)\..+$ [NC] # FIRST LEVEL DOMAIN (localhost) USAGE
+RewriteRule (.*) index.php?page=%1&wildcard&rlVareables=$1 [QSA,L]
+
+# account request (sub-directory)
+RewriteRule ^((\w{2})/)?([\w-_]{3,})$ index.php?page=$3&lang=$2&account_request [QSA,L]
+
+# define single pages
+RewriteRule ^([^//]+)/?(^/*)?.ht(m?ml?)$ index.php?page=$1 [QSA,L]
+
+# define other pages
+RewriteRule ^([^//]+)/?(.*)?/?(.*)?(.ht(m?ml?)|/+)$ index.php?page=$1&rlVareables=$2 [QSA,L]

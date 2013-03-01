@@ -1,0 +1,298 @@
+/* RTL direction styles */
+body
+{
+	direction: rtl;
+}
+h2
+{
+	margin: 3px 2px 1px 0;
+}
+ul
+{
+	padding: 0 30px 0 0;
+}
+
+#logo
+{
+	float: right;
+	padding: 14px 10px 0 0;
+}
+#languages
+{
+	float: left;
+	padding: 10px 0 0 10px;
+}
+
+/* main menu home */
+.main_menu_home table td.left
+{
+	background-position: -5px -85px;
+}
+.main_menu_home table td.right
+{
+	background-position: 0 -85px;
+}
+/* main menu home end */
+
+/* bread crumbs */
+ul#bread_crumbs li
+{
+	padding: 0 15px 0 10px;
+	float: right;
+	background: url('../img/form.png') right -1023px no-repeat;
+}
+ul#bread_crumbs li.home
+{
+	width: 13px;
+	padding: 0;
+	height: 13px;
+	margin: 0 0 0 10px;
+}
+/* bread crumbs end */
+
+/* quick saerch */
+#qucik_search table td.left
+{
+	height: 34px;
+	width: 5px;
+	background-position: -34px -1056px;
+}
+#qucik_search table td.center input
+{
+	padding: 0 0 0 3px;
+}
+#qucik_search table td.right input,
+#qucik_search table td.right
+{
+	background-position: 0px -1056px;
+}
+/* quick saerch end */
+
+/* featured carousel */
+div#carousel ul li
+{
+	float: right;
+	margin: 0 0 0 5px;
+}
+div.img_border
+{
+	float: right;
+}
+div#carousel div.right_nav
+{
+	left: 0;
+	right: auto;
+	margin: -26px 0 0 10px;
+	background: url('../img/form.png') 0 -252px no-repeat;
+}
+div#carousel div.left_nav
+{
+	left: auto;
+	right: 0;
+	background-position: -16px -252px;
+	margin: -26px 10px 0 0;
+}
+/* featured carousel end */
+
+/* user menu */
+div#user_menu table td.left
+{
+	background-position: -17px -1093px;
+}
+div#user_menu table td.right
+{
+	background-position: 0 -1093px;
+}
+div#user_menu table td.center
+{
+	background: url('../img/form.png') 0 -341px repeat-x;
+	cursor: pointer;
+	text-align: center;
+}
+div#user_menu table td.center a:link,
+div#user_menu table td.center a:visited
+{
+	color: #61511a;
+	font-size: 14px;
+	text-decoration: none;
+	font-weight: bold;
+	display: block;
+	padding: 8px 0 9px;
+	text-shadow: 0 1px 0 white;
+}
+div#user_menu table td.center a:hover,
+div#user_menu table td.center a:active 
+{
+	text-decoration: none;
+}
+/* user menu end */
+
+/* footer menu */
+.footer_menu a:link,
+.footer_menu a:visited
+{
+	padding: 0 0 0 15px;
+}
+.footer_menu a:hover,
+.footer_menu a:active 
+{
+	text-decoration: none;
+}
+/* footer menu end */
+
+.sub_categories
+{
+	margin: 0px 5px 0 20px;
+}
+
+
+/* sorting */
+.sorting
+{
+	text-align: left;
+}
+/* sorting end */
+
+/* listings */
+div.photos_icon a
+{
+	padding: 2px 0 2px 2px;
+}
+div.fields
+{
+	padding: 0 10px 0 0;
+}
+div.field,
+span.field
+{
+	padding: 0 0 5px 5px;
+}
+div.featured_line
+{
+	width: 70px;
+	height: 42px;
+	top: 0;
+	right: auto;
+	left: 0;
+	margin: -4px 0 0 -4px;
+}
+/* listings end */
+
+/* paging */
+ul.paging li
+{
+	float: right;
+}
+ul.paging li.navigator_right
+{
+	background-position: 0 -643px;
+}
+ul.paging li.navigator_left
+{
+	background-position: -26px -643px;
+}
+ul.paging li.navigator_right_end
+{
+	background-position: 0 -616px;
+}
+ul.paging li.navigator_left_end
+{
+	background-position: -25px -616px;
+}
+ul.paging li.left
+{
+	background-position: -28px -679px;
+}
+ul.paging li.right
+{
+	background-position: 0 -679px;
+}
+/* paging end */
+
+/* tabs */
+table.tabs td table td.left
+{
+	background-position: -29px -774px;
+}
+table.tabs td table td.right
+{
+	background-position: -24px -774px;
+}
+
+table.tabs td.active table td.left
+{
+	background-position: -5px -774px;
+}
+table.tabs td.active table td.right
+{
+	background-position: 0 -774px;
+}
+table.tabs td.active table td.center
+{
+	background: url('../img/form.png') 0 -807px repeat-x;
+}
+/* tabs end */
+
+/* listing photos */
+div#thumbnails div.item
+{
+	float: right;
+	margin: 0 0 0 3px;
+}
+div#thumbnails div.active
+{
+	border: 1px #b72200 solid;
+}
+div#thumbnails div.item img
+{
+	border: 1px white solid;
+}
+div#thumbnails div.next
+{
+	left: 0;
+	right: auto;
+	background-position: 0 -252px;
+}
+div#thumbnails div.prev
+{
+	background-position: -11px -252px;
+	right: 0;
+	left: auto;
+}
+/* listing photos end */
+
+/* fieldset */
+div.fieldset
+{
+	padding: 0 5px 0 10px;
+}
+/* fieldset end */
+
+/* error/notices */
+#error_message
+{
+	background: url('../img/error_bg.png') right center no-repeat #f9cece;
+	padding: 5px 35px 5px 10px;
+}
+#notice_message
+{
+	background: url('../img/notice_bg.png') right center no-repeat #d2e798;
+	padding: 5px 35px 5px 10px;
+}
+/* error/notices end */
+
+a.button span.left,
+a.button span.right
+{
+	float: right;
+	background-position: -3px -947px;
+}
+a.button span.right
+{
+	background-position: 0 -947px;
+}
+a.button span.center
+{
+	float: right;
+	background: url('../img/form.png') 0 -977px repeat-x;
+}
