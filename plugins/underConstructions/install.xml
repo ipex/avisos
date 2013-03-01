@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="underConstructions">
+	<title>Under Constructions</title>
+	<description>Under Constructions plugin</description>
+	<author>Kevin Fly</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>3.0.2</version>
+	<date>28.09.2010</date>
+	<files>
+		<file>content.tpl</file>
+		<file>style.css</file>
+	</files>
+	
+	<hooks>
+		<hook name="boot" version="3.0.1">
+		<![CDATA[
+		global $config, $reefless, $rlSmarty, $rlDb, $rlXajax;
+		
+		if ( $GLOBALS['aHooks']['massmailer_newsletter'] )
+		{
+			$GLOBALS['reefless'] -> loadClass('MassmailerNewsletter', null, 'massmailer_newsletter');
+			$rlXajax -> registerFunction( array( 'subscribe', $GLOBALS['rlMassmailerNewsletter'], 'ajaxSubscribe' ) );
+		}
+		
+		$ips = explode(';', $config['under_constructions_ip']);
+		$file = $config['under_constructions_file'];
+		
+		$ip = getenv('REMOTE_ADDR');
+		
+		$date = $rlDb -> getRow("SELECT UNIX_TIMESTAMP(`Default`) AS `Date` FROM `". RL_DBPREFIX ."config` WHERE `Key` = 'under_constructions_date' LIMIT 1");
+		$rlSmarty -> assign('date', $date['Date']);
+		
+		if ( !in_array($ip, $ips) && $config['under_constructions_module'] && time() <= $date['Date'] )
+		{
+			if ( !empty($file) && file_exists($file) )
+			{
+				$file_content = $reefless -> getPageContent(RL_ROOT . $file);
+				echo $file_content;
+				exit;
+			}
+			else
+			{
+				$rlSmarty -> display(RL_ROOT . 'plugins' . RL_DS . 'underConstructions' . RL_DS . 'content.tpl'); 	
+				exit;
+			}
+		}
+		]]>
+		</hook>
+		
+	</hooks>
+	
+	<phrases>
+		<phrase key="under_constructions_h1" module="frontEnd"><![CDATA[The website is under construction]]></phrase>
+		<phrase key="under_constructions_h2" module="frontEnd"><![CDATA[Estimated time remaining before official launch:]]></phrase>
+		<phrase key="under_constructions_subscribe" module="frontEnd"><![CDATA[Subscribe]]></phrase>
+		<phrase key="under_constructions_days" module="frontEnd"><![CDATA[Days]]></phrase>
+		<phrase key="under_constructions_hours" module="frontEnd"><![CDATA[Hours]]></phrase>
+		<phrase key="under_constructions_minutes" module="frontEnd"><![CDATA[Minutes]]></phrase>
+		<phrase key="under_constructions_seconds" module="frontEnd"><![CDATA[Seconds]]></phrase>
+		<phrase key="under_constructions_email" module="frontEnd"><![CDATA[Enter E-mail]]></phrase>
+	</phrases>
+	
+	<configs key="underConstructions" name="Under Constructions">
+		<![CDATA[]]>
+		<config key="under_constructions_divider_common" name="Common" type="divider"><![CDATA[]]></config>
+		<config key="under_constructions_module" name="Under constructions module" type="bool"><![CDATA[1]]></config>
+		<config key="under_constructions_ip" name="Allowed IP-addresses" description="For example: 127.0.0.1;198.2.25.56" values="" type="text"><![CDATA[127.0.0.1]]></config>
+		<config key="under_constructions_date" name="Date" description="Launch Date in the following format: 2011-04-29 17:40:55" type="text"><![CDATA[]]></config>		
+		<config key="under_constructions_file" name="Custom html-file name" description="The file name located in ROOT directory (Optional)" type="text"><![CDATA[]]></config>
+		<config key="under_constructions_divider_meta" name="Meta Data" type="divider"><![CDATA[]]></config>
+		<config key="under_constructions_meta_title" name="Meta Title" type="text"><![CDATA[The website is under construction]]></config>
+		<config key="under_constructions_meta_description" name="Meta Description" type="textarea"><![CDATA[]]></config>
+		<config key="under_constructions_meta_keywords" name="Meta Keywords" type="textarea"><![CDATA[]]></config>
+	</configs>
+	
+	<updates>
+		<upadte version="3.0.1"><![CDATA[]]></update>
+		<upadte version="3.0.2" files="content.tpl"><![CDATA[]]></update>
+	</updates>
+	
+	<install>
+	<![CDATA[
+		global $rlDb;
+		$sql = "UPDATE `". RL_DBPREFIX ."config` SET `Default` = DATE(DATE_ADD(NOW(), INTERVAL 1 MONTH)) WHERE `Key` = 'under_constructions_date' LIMIT 1";
+		$rlDb -> query($sql);
+	]]>
+	</install>
+</plugin>
