@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-gb" xml:lang="en-gb">
 <head>
 <title>{$config.under_constructions_meta_title}</title>
-<meta name="generator" content="Flynax Classifieds Software" />
+<meta name="generator" content="Avisos Clasificados de Bolivia" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="{$config.under_constructions_meta_description}" />
 <meta name="Keywords" content="{$config.under_constructions_meta_keywords}" />
