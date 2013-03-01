@@ -267,7 +267,7 @@ a.category:visited
 	color: #4d89ea;
 	font-size: 16px;
 	font-weight: 600;
-	text-transform: uppercase;
+	text-transform: lowercase;
 	text-decoration: none;
 	text-shadow: 1px 1px 0 #FFFFFF;
 }
