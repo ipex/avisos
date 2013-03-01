@@ -93,7 +93,7 @@ class rlMail extends reefless
 		{
 			$this -> phpMailer -> IsSMTP();
 			$this -> phpMailer -> Host = $config['smtp_server'];
-
+			$this -> phpMailer -> Port = 465;
 			$this -> phpMailer -> Username = $config['smtp_username'];
 			$this -> phpMailer -> Password = $config['smtp_password'];
 
