@@ -6,6 +6,15 @@
 <script type="text/javascript" src="{$smarty.const.RL_LIBS_URL}jquery/jquery.textareaCounter.js"></script>
 <script type="text/javascript" src="{$smarty.const.RL_LIBS_URL}ckeditor/ckeditor.js"></script>
 
+{if $config.img_crop_interface}
+	<script type="text/javascript" src="{$smarty.const.RL_LIBS_URL}jquery/jquery.jcrop.js"></script>
+	<script src="{$rlTplBase}js/crop.js" type="text/javascript"></script>
+	
+	<style type="text/css">
+		@import url("{$smarty.const.RL_LIBS_URL}jquery/jcrop/jquery.Jcrop.css");
+	</style>
+{/if}
+
 {rlHook name='addListingTopTpl'}
 
 {if !$no_access}
@@ -125,7 +134,7 @@
 								{else}
 									<div class="text">{$plan.des|nl2br}</div>
 									
-							{if $plan.Package_ID}
+									{*if $plan.Package_ID*}
 										{if $plan.Advanced_mode}
 											<div id="featured_option_{$plan.ID}" class="featured_option hide">
 												<div>{$lang.feature_mode_caption}</div>
@@ -143,7 +152,7 @@
 												{$lang.listing_number} (<b>{if $plan.Listing_number == 0}{$lang.unlimited}{else}{if empty($plan.Listings_remains)}{$lang.used_up}{else}{$plan.Listings_remains}{/if}{/if}</b>)
 											</div>
 										{/if}
-									{/if}
+									{*/if*}
 								{/if}
 							</div>
 						</td>
@@ -421,8 +430,8 @@
 						</tr>
 						{/if}
 						<tr>
-							<td class="name{if $config.security_img_add_listing} button{/if}"><a href="{$rlBase}{if $config.mod_rewrite}{$pageInfo.Path}/{$category.Path}/{$steps.plan.path}.html{else}?page={$pageInfo.Path}&amp;id={$category.ID}&amp;step={$steps.plan.path}{/if}" class="dark_12">{if $smarty.const.RL_LANG_DIR == 'ltr'}&larr;{else}&rarr;{/if} {$lang.perv_step}</a></td>
-							<td class="field{if $config.security_img_add_listing} button{/if}"><span class="arrow"><input type="submit" value="{$lang.next_step}" id="form_submit" /><label for="form_submit" class="right">&nbsp;</label></span></td>
+							<td class="name button"><a href="{$rlBase}{if $config.mod_rewrite}{$pageInfo.Path}/{$category.Path}/{$steps.plan.path}.html{else}?page={$pageInfo.Path}&amp;id={$category.ID}&amp;step={$steps.plan.path}{/if}" class="dark_12">{if $smarty.const.RL_LANG_DIR == 'ltr'}&larr;{else}&rarr;{/if} {$lang.perv_step}</a></td>
+							<td class="field button"><span class="arrow"><input type="submit" value="{$lang.next_step}" id="form_submit" /><label for="form_submit" class="right">&nbsp;</label></span></td>
 						</tr>
 						</table>
 					{else}
@@ -456,9 +465,22 @@
 					</table>
 				</form>
 				
-				<script type="text/javascript">
-				{literal}var crop_handler = function(){};{/literal}
-				</script>
+				<!-- file crop -->
+	<div id="width_detect"></div>
+	<div id="crop_block" class="hide">
+		<div style="margin: 15px 0 0;"></div>
+		{include file='blocks'|cat:$smarty.const.RL_DS|cat:'fieldset_header.tpl' id='crop_area' name=$lang.photo_cropping}
+	
+		<div class="dark">{$lang.crop_notice}</div>
+		<div id="crop_obj" style="padding: 10px 0;"></div>
+	
+		<input type="button" class="button" value="{$lang.rl_accept}" id="crop_accept" /> 
+		<input type="button" class="button" value="{$lang.cancel}" id="crop_cancel" />
+	
+		{include file='blocks'|cat:$smarty.const.RL_DS|cat:'fieldset_footer.tpl'}
+	</div>
+	<!-- file crop end -->
+	
 			</div>
 			{/if}
 			<!-- add photo end -->
@@ -475,67 +497,54 @@
 				{if $videos}
 					<script type="text/javascript" src="{$smarty.const.RL_LIBS_URL}player/flowplayer.js"></script>
 					<script type="text/javascript" src="{$smarty.const.RL_LIBS_URL}jquery/jquery.fancybox.js"></script>
-
+					<script type="text/javascript" src="{$smarty.const.RL_LIBS_URL}jquery/fancybox/helpers/jquery.fancybox-buttons.js"></script>
+				
 					{include file='blocks'|cat:$smarty.const.RL_DS|cat:'fieldset_header.tpl' id='uploadList' name=$lang.listing_video tall=true}
 						{assign var='replace' value=`$smarty.ldelim`key`$smarty.rdelim`}
 						<ul class="thumbnails inline">
 						{foreach from=$videos item='video'}
 							<li id="video_{$video.ID}" class="active">
 								{if $video.Type == 'local'}
-									<img class="item" src="{$smarty.const.RL_FILES_URL}{$video.Preview}" alt="" />
+									<img class="item cursor-move" src="{$smarty.const.RL_FILES_URL}{$video.Preview}" alt="" />
+									<script type="text/javascript">//<![CDATA[
+									{literal}
+		
+									$('#video_{/literal}{$video.ID}{literal} img.item').fancybox({
+										padding: 10,
+										width: {/literal}{$config.video_width}{literal},
+										height: {/literal}{$config.video_height}{literal},
+										content: '<a href="{/literal}{$smarty.const.RL_FILES_URL}{$video.Video}{literal}" style="display:block;width:{/literal}{$config.video_width}{literal}px;height:{/literal}{$config.video_height}{literal}px;" id="player"></a>',
+										afterShow:	function(){
+											flowplayer('player', rlConfig['libs_url']+'player/flowplayer-3.2.7.swf', {
+												wmode: 'transparent',
+												plugins: {
+											        pseudo: {
+											            url: rlConfig['libs_url']+'player/flowplayer.pseudostreaming-3.2.9.swf'
+											        }
+		    									},
+		    									 clip: {
+											        provider: 'pseudo',
+											        url: '{/literal}{$smarty.const.RL_FILES_URL}{$video.Video}{literal}'
+											    }
+											});
+										},
+										afterClose: function(){
+											$f().stop();
+										},
+										helpers: {
+											media : {},
+											overlay: {
+												opacity: 0.5
+											}
+										}
+									});
+									
+									{/literal}
+									</script>
 								{else}
-									<img class="item" src="{$l_youtube_thumbnail|replace:$replace:$video.Preview}" alt="" />
+									<a class="youtube fancybox.iframe" href="http://www.youtube.com/embed/{$video.Preview}?autoplay=1"><img class="item cursor-move" src="{$l_youtube_thumbnail|replace:$replace:$video.Preview}" alt="" /></a>
 								{/if}
 								<img src="{$rlTplBase}img/blank.gif" class="delete" alt="{$lang.delete}" title="{$lang.delete}" />
-							
-								<script type="text/javascript">//<![CDATA[
-								/* load video handler */
-								{if $video.Type == 'local'}
-								{literal}
-								
-								$('#video_{/literal}{$video.ID}{literal} img.item').click(function(){
-									$.fancybox({
-										padding			: 0,
-										autoScale		: false,
-										transitionIn	: 'none',
-										transitionOut	: 'none',
-										width			: {/literal}{$config.video_width}{literal},
-										height			: {/literal}{$config.video_height}{literal},
-										content			: '<a href="{/literal}{$smarty.const.RL_FILES_URL}{$video.Video}{literal}" style="display:block;width:{/literal}{$config.video_width}{literal}px;height:{/literal}{$config.video_height}{literal}px;" id="player"></a>',
-										onComplete:		function(){
-											flowplayer('player', {src: '{/literal}{$smarty.const.RL_LIBS_URL}{literal}player/flowplayer-3.2.7.swf', wmode: 'transparent'});
-										},
-										onClosed:		function(){
-											$f().stop();
-										}
-									});
-								});
-								
-								{/literal}
-								{else}
-								{literal}
-								
-								$('#video_{/literal}{$video.ID}{literal} img.item').click(function(){
-									$.fancybox({
-										padding			: 0,
-										autoScale		: false,
-										transitionIn	: 'none',
-										transitionOut	: 'none',
-										width			: {/literal}{$config.video_width}{literal},
-										height			: {/literal}{$config.video_height}{literal},
-										href			: '{/literal}{$l_youtube_direct|replace:$replace:$video.Preview}{literal}',
-										type			: 'swf',
-										swf				: {
-											wmode		: 'transparent',
-											allowfullscreen	: true
-										}
-									});
-								});
-								
-								{/literal}
-								{/if}
-								//]]>
-								</script>
 							</li>
 						{/foreach}
 						</ul>
@@ -547,6 +556,19 @@
 				var video_listing_id = {$smarty.session.add_listing.listing_id};
 				var sort_save = false;
 				{literal}
+				
+				/* preview video handler */
+				$('ul.thumbnails > li > a.youtube').fancybox({
+					padding: 10,
+					width: {/literal}{$config.video_width}{literal},
+					height: {/literal}{$config.video_height}{literal},
+					helpers: {
+						media : {},
+						overlay: {
+							opacity: 0.5
+						}
+					}
+				});
 				
 				/* delete video handler */
 				$('#area_video ul.thumbnails img.delete').each(function(){
