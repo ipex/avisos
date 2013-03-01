@@ -1,4 +1,4 @@
 avisos
 ======
 
-Avisos Clasificados de Bolivia - Avisos.com.bo
+Avisos Clasificados de La Paz, Bolivia - Avisos.com.bo
