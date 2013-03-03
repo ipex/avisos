@@ -297,7 +297,7 @@ if ( $page_info['Tpl'] )
 		$rlSmarty -> assign( 'request_page', $page_info['Path'] );
 		if ( !empty($errors) && !$pType && !$pNotice )
 		{
-			$rlSmarty -> assign( 'errors', $lang['notice_should_login'] );
+			$rlSmarty -> assign( 'warning', $lang['notice_should_login'] );
 		}
 	}
 	elseif ( (isset($account_info['Type']) && in_array($account_info['Type_ID'], explode(',', $page_info['Deny']))) || (isset($account_info['Abilities'][$page_info['Key']]) && $account_info['Abilities'][$page_info['Key']] === false) )
