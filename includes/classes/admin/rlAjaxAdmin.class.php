@@ -79,7 +79,7 @@ class rlAjaxAdmin extends reefless
 			$_response -> script("
 				$('#logo').next().fadeOut('normal', function(){
 					$(this).remove();
-					var msg = '<div class=\"warning\"><div class=\"inner\"><div class=\"icon\"></div>{$msg}</div></div>';
+					var msg = '<div class=\"error hide\"><div class=\"inner\"><div class=\"icon\"></div>{$msg}</div></div>';
 					$('#logo').after(msg).next().fadeIn();
 				});
 			");
