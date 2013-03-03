@@ -327,7 +327,7 @@ else
 {
 	if ( $page_info['Login'] && !defined('IS_LOGIN') )
 	{
-		$page_info['Controller'] = 'login';
+		$page_info['Controller'] = 'registration';
 		$page_info['Page_type'] = 'system';
 		$rlSmarty -> assign( 'request_page', $page_info['Path'] );
 		$rlSmarty -> assign( 'errors', $lang['notice_should_login'] );
