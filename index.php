@@ -330,7 +330,7 @@ else
 		$page_info['Controller'] = 'login';
 		$page_info['Page_type'] = 'system';
 		$rlSmarty -> assign( 'request_page', $page_info['Path'] );
-		$rlSmarty -> assign( 'errors', $lang['notice_should_login'] );
+		$rlSmarty -> assign( 'warning', $lang['notice_should_login'] );
 	}
 	
 	if ( $page_info['Page_type'] == 'system' )
