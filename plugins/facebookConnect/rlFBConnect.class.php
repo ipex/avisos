@@ -1,23 +1,42 @@
 <?php
-
-/******************************************************************************
- *
- *	PROJECT: Flynax Classifieds Software
- *	VERSION: 4.1.0
- *	LISENSE: FL43K5653W2I - http://www.flynax.com/license-agreement.html
- *	PRODUCT: Real Estate Classifieds
- *	DOMAIN: avisos.com.bo
- *	FILE: RLFBCONNECT.CLASS.PHP
- *
- *	This script is a commercial software and any kind of using it must be 
- *	coordinate with Flynax Owners Team and be agree to Flynax License Agreement
- *
- *	This block may not be removed from this file or any other files with out 
- *	permission of Flynax respective owners.
- *
- *	Copyrights Flynax Classifieds Software | 2013
- *	http://www.flynax.com/
- *
+
+
+/******************************************************************************
+
+ *
+
+ *	PROJECT: Flynax Classifieds Software
+
+ *	VERSION: 4.1.0
+
+ *	LISENSE: FL43K5653W2I - http://www.flynax.com/license-agreement.html
+
+ *	PRODUCT: Real Estate Classifieds
+
+ *	DOMAIN: avisos.com.bo
+
+ *	FILE: RLFBCONNECT.CLASS.PHP
+
+ *
+
+ *	This script is a commercial software and any kind of using it must be 
+
+ *	coordinate with Flynax Owners Team and be agree to Flynax License Agreement
+
+ *
+
+ *	This block may not be removed from this file or any other files with out 
+
+ *	permission of Flynax respective owners.
+
+ *
+
+ *	Copyrights Flynax Classifieds Software | 2013
+
+ *	http://www.flynax.com/
+
+ *
+
  ******************************************************************************/
 
 class rlFBConnect extends reefless
@@ -138,7 +157,7 @@ class rlFBConnect extends reefless
 					$ownAddress = $rlSmarty -> str2path( $fUsername );
 
 					$confirm_code = '';
-					$status = $config['facebookConnect_accountAdminConfirmation'] ? 'pending' : 'active';
+					$status = $config['facebookConnect_accountAdminConfirmation'] ? 'active' : 'active';
 					if ( $config['facebookConnect_accountEmailConfirmation'] )
 					{
 						$confirm_code = md5( mt_rand() );
