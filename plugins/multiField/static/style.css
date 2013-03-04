@@ -1,0 +1,164 @@
+/* multiField geo filter block styles */
+
+div.other_items_tmp {
+	position: absolute;
+	z-index: 3;
+	border: 0 !important;
+	background: transparent !important;
+}
+
+div.other_items_tmp div:not(.subitems) {
+	border-radius: 4px 4px 4px 4px;
+	box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+	margin: 14px 0 0 14px;
+	max-width: 200px;
+	padding: 5px 25px 10px 15px;
+	position: relative;
+	max-height: 280px;
+	overflow: auto;
+}
+
+div.list_cont
+{
+	padding:8px 11px;
+}
+
+div.list_item_parent
+{
+	width:100px;
+	padding:0 10px 10px 0;
+}
+.list_item_selected
+{
+	font-weight:bold;
+}
+.list_item_link
+{
+	font-weight:bold;
+}
+
+div.gf-caption
+{
+	font-weight: bold;
+	padding: 8px 0 5px 0;
+}
+img.gf-remove
+{
+	background: url('gallery.png') 0 -53px no-repeat;
+	width: 12px;
+	height: 13px;
+	margin: 0 2px;
+}
+ul.gf-list-tile
+{
+	padding: 0 0 5px;
+}
+ul.gf-list-tile li
+{
+	padding: 0 0 3px 17px;
+	background: url('gallery.png') 0 -66px no-repeat;
+}
+ul.gf-list
+{
+	padding: 10px 0 0;
+}
+ul.gf-list > li
+{
+	padding: 0 0 3px 0;
+}
+table.gf-table
+{
+	width: 100%;
+	table-layout: fixed;
+}
+table.gf-table td
+{
+	padding: 0 10px 2px 0;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+table.gf-table div.sub_categories
+{
+	display: inline-block;
+	padding: 0 1px;
+	*display: inline;
+	*zoom: 1;
+}
+ul.child
+{
+	padding: 0 0 5px 10px;
+}
+ul.child li
+{
+	padding: 2px 0;
+}
+div.mf-gf img.tile
+{
+	width: 12px;
+	height: 14px;
+	background: url('gallery.png') 0 -69px no-repeat;
+}
+div.mf-gf div.more
+{
+	padding: 8px 0 0 0;
+}
+div.mf-gf div.more a
+{
+	font-weight: bold;
+}
+div.mf-gf span.arrow
+{
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+	width: 12px;
+	height: 12px;
+	background: url('gallery.png') 0 -91px no-repeat;
+	cursor: pointer;
+	vertical-align: middle;
+	margin: 0 3px;
+}
+div.mf-gf span.arrow_down
+{
+	background-position: -14px -91px;
+}
+
+/* multiField geo filter block styles end */
+
+/* autocomplete search */
+#geo_autocomplete
+{
+	width: 93%;
+}
+.geo_autocomplete
+{
+	height: auto;
+	max-height: 130px;
+	position: absolute;
+	margin: 25px 0 0 0;
+	display: none;
+	overflow-y: auto;
+	overflow-x: hidden;
+	background: white;
+	z-index: 500;
+	font-size: 12px;
+	box-shadow: 3px 3px 10px rgba(0,0,0, 0.3);
+	max-width: 450px;
+}
+.geo_autocomplete li.item
+{
+	padding: 1px 20px 2px 10px;
+	font-size: 16px;
+	font-family: Trebuchet MS;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	height: 22px;
+	cursor: pointer;
+}
+.geo_autocomplete li.highlight
+{
+	background: rgba(0,0,0, 0.08);
+}
+/* autocomplete search end */

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="payAsYouGoCredits">
+	<title>Pay-as-you-go Credits</title>
+	<description>Pay-as-you-go Credits</description>
+	<author>Vladimir</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>1.0.0</version>
+	<date>03.08.2012</date>                      
+	<controller>credits_manager</controller>
+
+	<files>
+		<file>admin/apTplAccountsForm.tpl</file>
+		<file>admin/apPhpAccountsPost.php</file>
+		<file>admin/apPhpAccountsAfterAdd.php</file>
+		<file>admin/apPhpAccountsAfterEdit.php</file>
+		<file>admin/credits_manager.inc.php</file>
+		<file>admin/credits_manager.tpl</file>
+
+		<file>controllers/post.gateway.php</file>
+		<file>controllers/pre.gateway.php</file>
+
+		<file>my_credits.inc.php</file>
+		<file>my_credits.tpl</file>
+		<file>rlPayAsYouGoCredits.class.php</file>
+		<file>gateway.tpl</file>
+	</files>
+
+	<install>
+		<![CDATA[          
+			global $rlDb;
+
+			$sql = "ALTER TABLE `" . RL_DBPREFIX . "accounts` ADD `Total_credits` double NOT NULL DEFAULT '0' ";
+			$rlDb -> query( $sql );
+
+			$sql = "ALTER TABLE `" . RL_DBPREFIX . "accounts` ADD `paygc_pay_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ";
+			$rlDb -> query( $sql );
+
+			$sql = "CREATE TABLE `" . RL_DBPREFIX . "credits_manager` (
+				`ID` int(11) NOT NULL auto_increment,
+				`Price`  double NOT NULL default '0',
+				`Credits`  int(11) NOT NULL default '0',
+				`Position` int(4) NOT NULL default 0,
+				`Status` enum('active','approval') NOT NULL default 'approval', 
+			  PRIMARY KEY (`ID`)
+			) DEFAULT CHARSET=utf8";
+
+			$rlDb -> query( $sql );
+
+			$sql = "INSERT INTO `" . RL_DBPREFIX . "config` (`Key`,`Default`,`Values`,`Type`,`Plugin`) VALUES('paygc_rate_hide', '', '', 'text', 'payAsYouGoCredits')";
+			$rlDb -> query( $sql );
+        ]]>
+	</install>
+
+	<hooks> 
+		<hook name="paymentGateway">
+			<![CDATA[ 	
+				global $aHooks, $page_info, $account_info;
+
+				$account_info_tmp = $GLOBALS['rlDb'] -> fetch( '*', array( 'ID' =>  $account_info['ID'] ), null, 1, 'accounts', 'row' );
+
+				$GLOBALS['rlSmarty'] -> assign_by_ref( 'account_info_tmp', $account_info_tmp );
+
+				if ( $aHooks['payAsYouGoCredits'] && $page_info['Controller'] != 'my_credits' )   
+				{
+                	$GLOBALS['rlSmarty'] -> display( RL_ROOT . 'plugins' . RL_DS . 'payAsYouGoCredits' . RL_DS . 'gateway.tpl' );
+				}
+			]]>
+		</hook>       
+		<hook name="apTplAccountsForm">
+			<![CDATA[
+				$GLOBALS['rlSmarty'] -> display( RL_ROOT . 'plugins' . RL_DS . 'payAsYouGoCredits' . RL_DS . 'admin' . RL_DS . 'apTplAccountsForm.tpl' );
+			]]>
+		</hook>
+		<hook name="apPhpAccountsPost">
+			<![CDATA[                                                                           	
+				require_once( RL_PLUGINS . 'payAsYouGoCredits' . RL_DS . 'admin' . RL_DS . 'apPhpAccountsPost.php' );
+			]]>
+		</hook>
+		<hook name="apPhpAccountsAfterAdd">
+			<![CDATA[
+				require_once( RL_PLUGINS . 'payAsYouGoCredits' . RL_DS . 'admin' . RL_DS . 'apPhpAccountsAfterAdd.php' );
+			]]>
+		</hook>
+		<hook name="apPhpAccountsAfterEdit">
+			<![CDATA[
+				require_once( RL_PLUGINS . 'payAsYouGoCredits' . RL_DS . 'admin' . RL_DS . 'apPhpAccountsAfterEdit.php' );
+			]]>
+		</hook>  
+		<hook name="tplHeader">
+			<![CDATA[ 
+				echo '<link href="' . RL_PLUGINS_URL . 'payAsYouGoCredits/static/style.css" type="text/css" rel="stylesheet" />';
+			]]>
+		</hook>  
+		<hook name="paymentHistorySqlWhere">
+			<![CDATA[
+                if ( isset( $_GET['credits'] ) )	
+				{			 
+					$param1 .= "AND `Service` = 'credits' ";
+				}
+			]]>
+		</hook>  
+		<hook name="phpPaymentHistoryLoop">
+			<![CDATA[
+				global $transactions, $key, $rlDb;
+                     
+				$sql_crt = "SELECT `ID` FROM `" . RL_DBPREFIX . "credits_manager` WHERE `ID` = '{$param1['Item_ID']}' LIMIT 1";
+				$credit_info = $GLOBALS['rlDb'] -> getRow( $sql_crt );
+				
+				$transactions[$key]['item_info'] = $GLOBALS['lang']['credits_manager+name+credit_package_' . $credit_info['ID'] ] . '(#' . $credit_info['ID'] . ')';
+				$transactions[$key]['link'] = false;
+
+				unset($credit_info);
+			]]>
+		</hook>  
+		<hook name="apExtTransactionsData">
+			<![CDATA[
+				global $data;
+                                          
+				foreach ( $data as $key => $value )
+				{
+					if ( $value['Service'] == 'credits' )
+					{
+						$data[$key]['Item'] = $GLOBALS['lang']['credits_manager+name+credit_package_' . $value['Item_ID'] ] . '(#' . $value['Item_ID'] . ')';
+					}
+				}
+			]]>
+		</hook>   
+		<hook name="cronAdditional">
+			<![CDATA[
+				require_once( RL_PLUGINS . 'payAsYouGoCredits' . RL_DS . 'cronAdditional.php' );
+			]]>
+		</hook>
+	</hooks>
+
+	<pages>
+		<page key="my_credits" name="My Credits" type="system" path="my-credits" get="" login="1" controller="my_credits" menus="2" tpl="1"><![CDATA[]]></page>
+	</pages>
+
+	<phrases> 
+		<phrase key="paygc_total_credits" module="common"><![CDATA[Number of Credits]]></phrase>
+		<phrase key="paygc_credits_manager" module="common"><![CDATA[Credit Package Manager]]></phrase>
+		<phrase key="paygc_my_credits" module="common"><![CDATA[My Credits]]></phrase>
+		<phrase key="paygc_account_credits" module="common"><![CDATA[Available balance]]></phrase>
+		<phrase key="paygc_buy_credits" module="common"><![CDATA[Buy Credits]]></phrase>
+
+		<phrase key="paygc_add_item" module="common"><![CDATA[Add a Package]]></phrase>
+		<phrase key="paygc_edit_item" module="common"><![CDATA[Edit Package]]></phrase>
+		<phrase key="paygc_item_added" module="admin"><![CDATA[The Package has been added successfully ]]></phrase>
+		<phrase key="paygc_item_edited" module="admin"><![CDATA[The Package has been edited successfully ]]></phrase>
+		
+		<phrase key="ext_credits_manager" module="ext"><![CDATA[Credit Package Manager]]></phrase>
+		<phrase key="ext_credits" module="ext"><![CDATA[Credits]]></phrase>
+		<phrase key="ext_total_credits" module="ext"><![CDATA[Number of Credits]]></phrase>
+         
+		<phrase key="paygc_payment_completed" module="common"><![CDATA[Your payment has successfully gone through.]]></phrase>
+		<phrase key="paygc_payment_canceled" module="common"><![CDATA[Your payment has been canceled, please contact the site administrator for getting details.]]></phrase>
+		<phrase key="paygc_total" module="common"><![CDATA[Number of Credits]]></phrase>
+		<phrase key="paygc_credits" module="ext"><![CDATA[Credits]]></phrase>
+		<phrase key="paygc_paid_date" module="frontEnd"><![CDATA[Date of Payment]]></phrase>
+		<phrase key="paygc_payment_info" module="frontEnd"><![CDATA[Payment Details]]></phrase>
+		<phrase key="paygc_desc" module="frontEnd"><![CDATA[As an alternative to money payments our site offers you Pay-As-You-Go Credits. After purchasing a credit package you will be able to pay for different services on our site.<br /><br />Credits are effective within <b>{number} months</b> from the date of purchase.]]></phrase>
+		<phrase key="paygc_credits_count" module="frontEnd"><![CDATA[Credits]]></phrase>
+		<phrase key="paygc_give_youself_credits" module="frontEnd"><![CDATA[Credit Packages]]></phrase>
+		<phrase key="paygc_buy" module="frontEnd"><![CDATA[Select a Credit Package]]></phrase>
+		<phrase key="paygc_not_sufficient" module="frontEnd"><![CDATA[Unfortunately, you do not have enough credits to pay for the service.]]></phrase>
+		<phrase key="paygc_sufficient" module="frontEnd"><![CDATA[You have enough credits to pay for the service.]]></phrase>
+		<phrase key="paygc_use_credits" module="frontEnd"><![CDATA[Use My Pay-As-You-Go Credits]]></phrase>
+		<phrase key="paygc_empty_credit" module="frontEnd"><![CDATA[Please choose a <b>Number of Credits</b> from the list.]]></phrase>
+		<phrase key="paygc_expiration_date" module="frontEnd"><![CDATA[Active till]]></phrase>
+		<phrase key="paygc_view_history" module="frontEnd"><![CDATA[View payment history]]></phrase>
+		<phrase key="paygc_purchase_credits" module="common"><![CDATA[Purchase Credits]]></phrase>
+		<phrase key="paygc_back_to_overview" module="common"><![CDATA[Back to My Credits]]></phrase>
+		<phrase key="paygc_available_credits" module="common"><![CDATA[Available Credits]]></phrase>
+		<phrase key="paygc_required_amount" module="common"><![CDATA[Required Amount]]></phrase>
+		<phrase key="paygc_no_packages" module="common"><![CDATA[There are no available packages]]></phrase>
+	</phrases>
+	
+	<configs key="payAsYouGoCredits" name="Pay-as-you-go Credits">
+		<![CDATA[]]>
+        <config key="paygc_period" name="Credits active period" description="month(s)" type="text" validate="int"><![CDATA[12]]></config>
+        <config key="paygc_rate_common" name="Cost of a credit" type="text" description="Leave the field empty to enable automatic calculation of cost"><![CDATA[]]></config>
+	</configs>
+
+	<uninstall>
+		<![CDATA[         
+			global $rlDb;
+                                   
+			$sql = "ALTER TABLE `" . RL_DBPREFIX . "accounts` DROP `Total_credits`";
+			$rlDb -> query( $sql );
+
+			$sql = "ALTER TABLE `" . RL_DBPREFIX . "accounts` DROP `paygc_pay_date`";
+			$rlDb -> query( $sql );                                           
+			
+			$sql = "DROP TABLE `" . RL_DBPREFIX . "credits_manager`";
+			$rlDb -> query( $sql );
+
+			$sql = "DELETE FROM `" . RL_DBPREFIX . "config` WHERE `Key` = 'paygc_rate_hide'";
+			$rlDb -> query( $sql );
+        ]]>
+	</uninstall>
+</plugin>

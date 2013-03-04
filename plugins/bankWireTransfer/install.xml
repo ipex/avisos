@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="bankWireTransfer">
+	<title>Bank Transfer Payment Gateway</title>
+	<description>Enables paying for ads by wire transfer and checks</description>
+	<author>Vladimir</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>1.0.1</version>
+	<date>31.07.2012</date>                      
+	<controller>bank_wire_transfer</controller>
+	
+	<files>
+		<file>admin/bank_wire_transfer.inc.php</file>
+		<file>admin/bank_wire_transfer.tpl</file>
+		<file>admin/payment_details.inc.php</file>
+		<file>admin/payment_details.tpl</file>
+		<file>admin/txn_details.tpl</file>
+		<file>controllers/pre.gateway.php</file>
+		<file>controllers/post.gateway.php</file>
+        <file>rlBankWireTransfer.class.php</file>
+		<file>bank_wire_transfer.inc.php</file>
+		<file>bwt_print.inc.php</file>
+		<file>boot.php</file>
+        <file>bwt_payment_block.tpl</file>
+		<file>bwt_tpl_footer.tpl</file>       
+		<file>bank_wire_transfer.tpl</file>
+		<file>type_by_check.tpl</file>
+		<file>type_wire_transfer.tpl</file>
+        <file>bank_write_details.tpl</file>
+        <file>bwt_print.tpl</file>
+        <file>payment_details_block.tpl</file>
+	</files>
+
+	<install>
+		<![CDATA[
+			global $rlDb;
+
+			$sql = "CREATE TABLE `".RL_DBPREFIX."bwt_transactions` (
+				`ID` int(11) NOT NULL auto_increment,
+				`Type` varchar(50) NOT NULL default '',
+				`IP` varchar(50) NOT NULL default '',
+				`Txn_ID` varchar(100) NOT NULL default '',
+				`order_id` varchar(50) NOT NULL default '',  
+				`Bank_account_number` varchar(100) NOT NULL default '',
+				`Account_name` varchar(100) NOT NULL default '',
+				`Company_name` varchar(200) NOT NULL default '',
+				`Country` varchar(200) NOT NULL default '',
+				`State` varchar(200) NOT NULL default '',
+				`City` varchar(200) NOT NULL default '',
+				`Zip`  int(8) NOT NULL default '0',
+				`Address` varchar(200) NOT NULL default '',
+				`Bank_name` varchar(200) NOT NULL default '',
+				`Bank_country` varchar(200) NOT NULL default '',
+				`Bank_state` varchar(200) NOT NULL default '',
+				`Bank_city` varchar(200) NOT NULL default '',
+				`Bank_address` varchar(200) NOT NULL default '',
+				`Bank_zip`  int(8) NOT NULL default '0',
+				`Bank_phone` varchar(30) NOT NULL default '',        
+				`Status` enum('active','approval') NOT NULL default 'approval', 
+				`Item_data` text NOT NULL default '',
+			KEY `ID` (`ID`)
+			) CHARSET=utf8";
+
+			$rlDb -> query($sql);
+
+			$sql = "
+			CREATE TABLE `".RL_DBPREFIX."bwt_payment_details` (
+				`ID` int(11) NOT NULL auto_increment,
+				`Key` varchar(255) NOT NULL default '', 
+				`Name` varchar(255) NOT NULL default '', 
+				`Description` text NOT NULL default '', 
+				`Position` int(4) NOT NULL default 0,    
+				KEY `ID` (`ID`)
+			) CHARSET=utf8";
+
+			$rlDb -> query($sql);
+        ]]>
+	</install>
+
+	<hooks>        
+		<hook name="paymentGateway">
+			<![CDATA[ 
+				if ($GLOBALS['config']['bwt_module'])   
+				{
+                	$GLOBALS['rlSmarty'] -> display(RL_ROOT . 'plugins' . RL_DS . 'bankWireTransfer' . RL_DS . 'bwt_payment_block.tpl');
+				}
+			]]>
+		</hook> 
+		<hook name="tplFooter">
+			<![CDATA[
+				if ($GLOBALS['config']['bwt_module'])   
+				{
+                	$GLOBALS['rlSmarty'] -> display(RL_ROOT . 'plugins' . RL_DS . 'bankWireTransfer' . RL_DS . 'bwt_tpl_footer.tpl');
+				}
+			]]>
+		</hook> 
+		<hook name="specialBlock">
+			<![CDATA[
+				global $page_info, $rlDb;
+  
+				if ($GLOBALS['config']['bwt_module'] && !empty($_POST['type']))   
+				{
+					$_SESSION['bwt_type'] = $_POST['type'];
+				}
+			]]>
+		</hook> 
+		<hook name="boot">
+			<![CDATA[
+				if ($GLOBALS['config']['bwt_module'])   
+				{ 
+					require_once(RL_PLUGINS .'bankWireTransfer'. RL_DS .'boot.php');
+				}
+			]]>
+		</hook>
+	</hooks>
+
+	<pages>
+		<page key="bank_wire_transfer" name="Bank Wire Transfer Payment" type="system" path="bank-wire-transfer" get="" login="1" controller="bank_wire_transfer" menus="" tpl="1"><![CDATA[]]></page>
+		<page key="bwt_print" name="Print payment details" type="system" path="bwt-print" get="" login="1" controller="bwt_print" menus="" tpl="1"><![CDATA[]]></page>
+	</pages>
+
+	<phrases>
+		<phrase key="bwt_order_information" module="common"><![CDATA[Order Information]]></phrase>
+		<phrase key="bwt_transaction_num" module="common"><![CDATA[Transaction Number]]></phrase>
+		<phrase key="bwt_description" module="common"><![CDATA[Description]]></phrase>
+		<phrase key="bwt_type" module="common"><![CDATA[Type]]></phrase>
+		<phrase key="bwt_total" module="common"><![CDATA[Total]]></phrase>
+		<phrase key="bwt_account_info" module="common"><![CDATA[Account Information]]></phrase>
+		<phrase key="bwt_bank_info" module="common"><![CDATA[Bank Information]]></phrase>
+		<phrase key="bwt_account_name" module="common"><![CDATA[Account Name]]></phrase>
+		<phrase key="bwt_company_name" module="common"><![CDATA[Company Name]]></phrase>
+		<phrase key="bwt_counry" module="common"><![CDATA[Country]]></phrase>
+		<phrase key="bwt_city" module="common"><![CDATA[City]]></phrase>
+		<phrase key="bwt_address" module="common"><![CDATA[Address]]></phrase>
+		<phrase key="bwt_state" module="common"><![CDATA[State]]></phrase>
+		<phrase key="bwt_zip" module="common"><![CDATA[Zip]]></phrase>
+		<phrase key="bwt_bank_account_number" module="common"><![CDATA[Bank Account Number]]></phrase>
+		<phrase key="bwt_bank_name" module="common"><![CDATA[Bank Name]]></phrase>
+		<phrase key="bwt_bank_address" module="common"><![CDATA[Bank Address]]></phrase>
+		<phrase key="bwt_bank_phone" module="common"><![CDATA[Bank Phone]]></phrase>
+		<phrase key="bwt_pay" module="common"><![CDATA[Submit]]></phrase>
+		<phrase key="bwt_complete" module="common"><![CDATA[Your payment successfully completed.]]></phrase>
+		<phrase key="bwt_complete_please_wait" module="common"><![CDATA[Your payment successfully completed. Please wait, when an administrator activates your listing.]]></phrase>
+		<phrase key="bwt_session_finished" module="common"><![CDATA[Your session was finished please try again.]]></phrase>
+		<phrase key="bwt_details_tnx" module="common"><![CDATA[Transaction Details]]></phrase>
+		<phrase key="bwt_view" module="common"><![CDATA[View]]></phrase>
+		<phrase key="bwt_txn_id" module="common"><![CDATA[Txn ID]]></phrase>
+		<phrase key="bwt_by_check_notice" module="common"><![CDATA[Please provide the site administration with a check or any other details confirming your payment and a transaction ID after making the payment to have your listing activated.]]></phrase>
+		<phrase key="bwt_txn_exists" module="common"><![CDATA[You have already requested payment for the listing. Please pay the first order.]]></phrase>
+		<phrase key="bwt_payment_by_check" module="common"><![CDATA[Transfer by Check]]></phrase>
+		<phrase key="bwt_payment_wire_transfer" module="common"><![CDATA[Bank Wire Transfer]]></phrase>
+		<phrase key="bwt_add_item" module="common"><![CDATA[Add Item]]></phrase>
+		<phrase key="bwt_edit_item" module="common"><![CDATA[Edit Item]]></phrase>
+		<phrase key="bwt_item_added" module="admin"><![CDATA[The Item has been successfully added]]></phrase>
+		<phrase key="bwt_item_edited" module="admin"><![CDATA[The Item has been successfully edited]]></phrase>
+		<phrase key="ext_payment_details_manager" module="ext"><![CDATA[Payment Details Manager]]></phrase>
+		<phrase key="bwt_transactions" module="admin"><![CDATA[Transactions]]></phrase>
+		<phrase key="bwt_payment_details" module="common"><![CDATA[Payment Details]]></phrase>
+		<phrase key="bwt_transaction_info" module="admin"><![CDATA[Transaction details]]></phrase>
+		<phrase key="bwt_order_details" module="common"><![CDATA[Listing Details]]></phrase>
+		<phrase version="1.0.1" key="bwt_continue" module="common"><![CDATA[Return to site]]></phrase>
+		<phrase key="bwt_missing_payment_details" module="common"><![CDATA[Payment details are missing, please contact the Administrator]]></phrase>
+		<phrase key="bwt_view_details" module="common"><![CDATA[Transaction view details]]></phrase>
+		<phrase key="bwt_ip" module="common"><![CDATA[Transaction view details]]></phrase> 
+		<phrase key="by_check" module="common"><![CDATA[By Check]]></phrase> 
+		<phrase key="write_transfer" module="common"><![CDATA[Wire Transfer]]></phrase> 
+	</phrases>
+
+	<config key="bwt_divider" name="Bank Wire Transfer Payment" description="" values="" type="divider" group="6"><![CDATA[]]></config>
+	<config key="bwt_module" name="Use Bank Wire Transfer" description="" values="" type="bool" validate="" group="6"><![CDATA[1]]></config>
+	<config key="bwt_type" name="Transfer Type" type="select" values="by_check,write_transfer,both" group="6" description="- By Check (users will be asked to enter their account details); - Wire Transfer (users will be asked to enter their bank account details and information about bank)"><![CDATA[by_check]]></config>
+	<config key="bwt_currency_code" name="Currency" type="text" group="6"><![CDATA[USD]]></config>
+	<config key="bwt_lenght_txn_id" name="Set a number of transaction ID characters" type="text" group="6"><![CDATA[12]]></config>
+
+
+	<updates>
+		<update version="1.0.1" files="admin/bank_wire_transfer.inc.php,controllers/pre.gateway.php,bank_wire_transfer.inc.php,rlBankWireTransfer.class.php,type_wire_transfer.tpl"><![CDATA[]]></update>
+	</updates>
+
+	<uninstall>
+		<![CDATA[
+			global $rlDb;
+                                    
+			$sql = "DROP TABLE `".RL_DBPREFIX."bwt_transactions`";
+			$rlDb -> query($sql);
+
+			$sql = "DROP TABLE `".RL_DBPREFIX."bwt_payment_details`";
+			$rlDb -> query($sql);
+        ]]>
+	</uninstall>
+</plugin>

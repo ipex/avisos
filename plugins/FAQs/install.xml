@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="FAQs">
+	<title>FAQs</title>
+	<description>FAQs</description>
+	<author>Dmitry Azavanichus</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>1.0.0</version>
+	<date>16.12.2012</date>
+	<controller>faqs</controller>
+	
+	<notice></notice>
+	<files>		
+		<file>admin/faqs.tpl</file>
+		<file>admin/faqs.inc.php</file>
+		<file>faqs.box.tpl</file>
+		<file>faqs.tpl</file>
+		<file>faqs.inc.php</file>
+		<file>rlFAQs.class.php</file>
+	</files>
+	
+	<install><![CDATA[
+	global $rlDb;
+	
+	$sql = "
+	CREATE TABLE `".RL_DBPREFIX."faqs` (
+	  `ID` int(11) NOT NULL auto_increment,
+	  `Date` datetime NOT NULL default '0000-00-00 00:00:00',
+	  `Path` varchar(255) NOT NULL default '0',
+	  `Status` enum('active','approval','trash') NOT NULL default 'active',
+  	  KEY `ID` (`ID`)
+	) CHARSET=utf8";	
+	$rlDb -> query($sql);
+	]]>
+	</install>
+
+	<pages>
+		<page key="faqs" name="FAQs" type="system" path="faqs" get="" login="0" controller="faqs" menus="3" tpl="1"><![CDATA[]]></page>
+	</pages>
+	
+	<configs key="faqs" name="FAQs">
+		<![CDATA[]]>
+		<config key="faqs_block_in_block" name="Number of FAQs in a box" type="text" validate="int" ><![CDATA[4]]></config>
+		<config key="faqs_block_content_length" name="FAQs box content length" type="text" validate="int" ><![CDATA[60]]></config>
+		<config key="faqs_at_page" name="Number of FAQs on page" type="text" validate="int" ><![CDATA[6]]></config>
+		<config key="faqs_page_content_length" name="FAQs page content length" type="text" validate="int" ><![CDATA[200]]></config>
+	</configs>
+	
+	<phrases>		
+		<phrase key="faq_add_faqs" module="admin"><![CDATA[Add a FAQ]]></phrase>
+		<phrase key="faq_edit_faqs" module="admin"><![CDATA[Edit FAQ]]></phrase>
+		<phrase key="faq_faqs_list" module="admin"><![CDATA[List of FAQs]]></phrase>
+		<phrase key="faq_page_url" module="admin"><![CDATA[Page URL]]></phrase>
+		<phrase key="faq_faqs_added" module="admin"><![CDATA[The FAQ has been successfully added.]]></phrase>
+		<phrase key="faq_faqs_edited" module="admin"><![CDATA[The FAQ has been successfully edited.]]></phrase>
+		<phrase key="faq_deleted" module="admin"><![CDATA[The FAQ has been successfully deleted.]]></phrase>
+		<phrase key="faq_dropped" module="admin"><![CDATA[The FAQ has been successfully moved to the Trash Box.]]></phrase>
+		<phrase key="ext_faqs_manager" module="ext"><![CDATA[FAQs Manager]]></phrase>
+		<phrase key="no_faqs" module="common"><![CDATA[There are no FAQs.]]></phrase>
+		<phrase key="back_to_faqs" module="common"><![CDATA[Go back to the FAQs page.]]></phrase>
+		<phrase key="view_all_faqs" module="common"><![CDATA[View all FAQs]]></phrase>
+	</phrases>
+	
+	<blocks>
+		<block key="faqs_box" name="FAQs" side="left" type="php" tpl="1"><![CDATA[
+			global $reefless, $rlSmarty;
+
+			$reefless -> loadClass( 'FAQs', null, 'FAQs' );
+			global $rlFAQs;
+			$all_faqs_block = $rlFAQs -> get( false,'block');
+
+			$rlSmarty -> assign_by_ref( 'all_faqs_block', $all_faqs_block );
+			$rlSmarty -> display( RL_PLUGINS . 'FAQs' . RL_DS . 'faqs.box.tpl' );
+		]]></block>
+	</blocks>
+
+	<uninstall>
+		<![CDATA[global $rlDb;
+				$sql = "DROP TABLE `".RL_DBPREFIX."faqs`";
+				$rlDb -> query($sql);
+		]]>
+	</uninstall>
+</plugin>

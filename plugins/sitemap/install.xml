@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="sitemap">
+	<title>Google and Yahoo sitemap</title>
+	<description>Generates sitemap files for Google and Yahoo</description>
+	<author>Vladimir</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>2.1.0</version>
+	<date>14.08.2012</date>
+	<notice><![CDATA[<br /><b>1. Replace the string (if exists) in .htaccess file:</b><br />RewriteCond %{REQUEST_URI} !(\.html)$ [NC]<br />with<br />RewriteCond %{REQUEST_URI} !(\.html|\.xml|\.txt)$ [NC]<br /><br /><b>2. Add a new rule to the bottom of .htaccess file:</b><br />#Google and Yahoo sitemap<br />RewriteRule ^([a-z_]*)?sitemap([0-9]*).xml$ plugins/sitemap/sitemap.php?search=google&number=$2&mod=$1 [QSA,L]<br />RewriteRule ^yahoo-sitemap.txt$ /plugins/sitemap/sitemap.php?search=yahoo [QSA,L]<br />RewriteRule ^urllist.txt$ /plugins/sitemap/sitemap.php?search=urllist [QSA,L] ]]></notice>
+
+	<files>
+		<file>sitemap.php</file>
+		<file>rlSitemap.class.php</file>
+	</files>
+	
+	<configs key="sitemap" name="Google Yahoo Sitemap">
+		<![CDATA[]]>
+        <config key="sitemap_limit_urls" name="Limit urls in file (Google)" description="" values="" type="text" validate="int"><![CDATA[10000]]></config>
+	</configs>
+	
+	<updates>
+		<update version="2.0.1" files="rlSitemap.class.php,sitemap.php"><![CDATA[]]></update>
+		<update version="2.1.0" files="rlSitemap.class.php,sitemap.php"><![CDATA[]]></update>
+	</updates>
+</plugin>

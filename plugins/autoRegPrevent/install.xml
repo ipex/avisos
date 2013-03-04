@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="autoRegPrevent">
+	<title>AutoRegPrevent</title>
+	<description>Auto sign up prevention</description>
+	<author>Alex</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>2.1.0</version>
+	<date>05.10.20011</date>
+	<controller>auto_reg_prevent</controller>
+
+	<files>
+		<file>admin/auto_reg_prevent.inc.php</file>
+		<file>admin/auto_reg_prevent.tpl</file>
+		<file>rlAutoRegPrevent.class.php</file>
+	</files>
+
+	<install>
+		<![CDATA[
+			global $rlDb;
+
+			$rlDb -> query( "
+				CREATE TABLE `". RL_DBPREFIX ."reg_prevent` (
+				  `ID` int(11) NOT NULL AUTO_INCREMENT,
+				  `Username` varchar(32) NOT NULL,
+				  `Mail` varchar(255) NOT NULL,
+				  `IP` varchar(15) NOT NULL,
+				  `Reason` varchar(25) NOT NULL,
+				  `Date` datetime NOT NULL,
+				  `Status` enum('block','unblock') NOT NULL DEFAULT 'block',
+				  PRIMARY KEY (`ID`)
+				) DEFAULT CHARSET=utf8;" );
+		]]>
+	</install>
+
+	<hooks>
+		<hook name="beforeRegister"><![CDATA[
+			global $reefless, $profile_data, $errors;
+
+			if ( empty($errors) )
+			{
+				$reefless -> loadClass('AutoRegPrevent', false, 'autoRegPrevent');
+				if ( false === $GLOBALS['rlAutoRegPrevent'] -> check($profile_data) )
+				{
+					$url = RL_URL_HOME . $GLOBALS['config']['mod_rewrite'] ? "{$GLOBALS['pages']['contact_us']}.html" : "index.php?page={$GLOBALS['pages']['contact_us']}";
+					$link = '<a class="navigator" href="'. $url .'" title="$1">$1</a>';
+					array_push($errors, preg_replace('/\[(.*)\]/', $link, $GLOBALS['lang']['autoRegPrevent_detected']));
+				}
+			}
+		]]>
+		</hook>
+	</hooks>
+
+	<configs key="autoRegPrevent" name="AutoRegPrevent">
+		<![CDATA[]]>
+		<config key="autoRegPrevent_check_divider" name="Check against spam blacklist" description="" values="" type="divider" validate=""><![CDATA[0]]></config>
+		<config key="autoRegPrevent_check_username" name="Username" description="" values="" type="bool" validate=""><![CDATA[0]]></config>
+		<config key="autoRegPrevent_check_email" name="Email" description="" values="" type="bool" validate=""><![CDATA[1]]></config>
+		<config key="autoRegPrevent_check_ip" name="IP" description="" values="" type="bool" validate=""><![CDATA[1]]></config>
+	</configs>
+
+	<phrases>
+		<phrase key="autoRegPrevent_detected" module="frontEnd"><![CDATA[We are very sorry but your IP or email is blacklisted as spam. You are not allowed to sign up. If you were blacklisted by mistake, please [contact] the administrator.]]></phrase>
+		<phrase key="autoRegPrevent_ext_manager" module="ext"><![CDATA[Manager]]></phrase>
+		<phrase key="autoRegPrevent_ext_reason" module="ext"><![CDATA[Reason of blocking]]></phrase>
+		<phrase key="autoRegPrevent_ext_date_reg" module="ext"><![CDATA[Date of registration]]></phrase>
+		<phrase key="autoRegPrevent_status_block" module="admin"><![CDATA[Blocked]]></phrase>
+		<phrase key="autoRegPrevent_status_unblock" module="admin"><![CDATA[unBlocked]]></phrase>
+		<phrase version="2.1.0" key="autoRegPrevent_ext_ip" module="admin"><![CDATA[IP address]]></phrase>
+		<phrase version="2.1.0" key="autoRegPrevent_adminAdded" module="admin"><![CDATA[Added by the Administrator]]></phrase>
+		<phrase version="2.1.0" key="autoRegPrevent_addItem" module="admin"><![CDATA[Add to spam list]]></phrase>
+		<phrase version="2.1.0" key="autoRegPrevent_fillOutNotice" module="ext"><![CDATA[Fill at least in one of the fields]]></phrase>
+		<phrase version="2.1.0" key="autoRegPrevent_invalidIp" module="ext"><![CDATA[Invalid IP, please enter a valid one]]></phrase>
+	</phrases>
+
+	<updates>
+		<update version="2.0.1" files="rlAutoRegPrevent.class.php"><![CDATA[]]></update>
+		<update version="2.1.0" files="rlAutoRegPrevent.class.php,admin/auto_reg_prevent.inc.php,admin/auto_reg_prevent.tpl">
+		<![CDATA[
+			global $rlDb;
+			$rlDb -> query("ALTER TABLE `". RL_DBPREFIX ."reg_prevent` CHANGE `Reason` `Reason` VARCHAR( 25 ) NOT NULL");
+		]]>
+		</update>
+	</updates>
+
+	<uninstall>
+		<![CDATA[
+			global $rlDb;
+			$rlDb -> query("DROP TABLE `". RL_DBPREFIX ."reg_prevent`");
+		]]>
+	</uninstall>
+
+</plugin>

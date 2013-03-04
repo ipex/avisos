@@ -1,0 +1,4 @@
+# deny all external requests
+<FilesMatch "\.php$">
+	ALLOW FROM ALL
+</FilesMatch>

@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="multiField">
+	<title>Multi-field/Geo filtering</title>
+	<description>Builds relationships among relevant fields in the form of interconnected cascading dropdowns; includes geo filtering option</description>
+	<author>Mike Fletcher</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>1.1.1</version>
+	<date>23.03.2012</date>
+	<controller>multi_formats</controller>
+	
+	<notices>
+		<notice><![CDATA[Follow the link: <a target="_blank" href="http://www.flynax.com/forum/showthread.php?710-Multi-field-Geo-filtering-plugin-instructions">Speed Configuration Guide for Multi-field/Geo filtering Plugin</a>]]></notice>
+	</notices>
+	
+	<files>
+		<file>autocomplete.inc.php</file>
+		<file>geo_block.tpl</file>
+		<file>list_level.tpl</file>
+		<file>mf_block.tpl</file>
+		<file>mf_block_account.tpl</file>
+		<file>mf_reg_js.tpl</file>
+		<file>static/aStyle.css</file>
+		<file>static/gallery.png</file>
+		<file>static/jquery.geo_autocomplete.js</file>
+		<file>static/style.css</file>
+		<file>rlMultiField.class.php</file>
+		<file>admin/edit_format_block.tpl</file>
+		<file>admin/flsource.tpl</file>
+		<file>admin/import_interface.tpl</file>
+		<file>admin/multi_formats.tpl</file>
+		<file>admin/multi_formats.inc.php</file>
+		<file>static/lib.js</file>
+		<file>admin/import.php</file>
+	</files>
+	
+	<install><![CDATA[
+		$sql ="CREATE TABLE `".RL_DBPREFIX."multi_formats` (
+			  `ID` int(11) NOT NULL auto_increment,
+			  `Position` int(5) NOT NULL default '0',
+			  `Levels` INT( 11 ) DEFAULT '0',
+			  `Key` varchar(255) NOT NULL default '',
+			  `Default` varchar(255) NOT NULL default '',
+			  `Geo_filter` ENUM( '0', '1' ) default '0',
+			  `Status` enum('active','approval') NOT NULL default 'active',
+			  PRIMARY KEY  (`ID`),
+			  KEY `Parent_ID` (`Position`)
+			  )CHARSET=utf8;";
+			  $GLOBALS['rlDb']->query( $sql );
+
+		$sql ="ALTER TABLE `".RL_DBPREFIX."data_formats` ADD `Path` VARCHAR( 255 ) NOT NULL AFTER `Key` ;";
+		$GLOBALS['rlDb']->query( $sql );
+
+		$sql ="ALTER TABLE `".RL_DBPREFIX."pages` ADD `Geo_exclude` ENUM( '0', '1' ) default '0'";
+		$GLOBALS['rlDb']->query( $sql );
+
+		$sql = "UPDATE `".RL_DBPREFIX."pages` SET `Geo_exclude` = '1' WHERE FIND_IN_SET(`Key`, 'about_us,contact_us,saved_search,rss_feed,listing_remove,print,payment_history,my_messages,my_listings,my_banners,my_services,my_packages,add_banner,upgrade_listing,terms_of_use,remind,privacy_police,payment,news,my_profile,login,my_favorites,edit_listing,add_photo,confirm' )";
+		$GLOBALS['rlDb']->query( $sql );
+		
+		$sql = "UPDATE `".RL_DBPREFIX."blocks` SET `Position` = 1 WHERE `Key` = 'geo_filter_block' LIMIT 1";
+		$GLOBALS['rlDb'] -> query($sql);
+
+		$sql = "UPDATE `".RL_DBPREFIX."config` SET `Group_ID` = 0 WHERE `Key` = 'mf_cache_data_formats' LIMIT 1";
+		$GLOBALS['rlDb'] -> query($sql);
+	]]></install>
+
+	<hooks>
+		<hook name="seoBase"><![CDATA[
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+			$GLOBALS['rlMultiField'] -> seoBaseHook();
+			]]></hook>		
+		<hook name="tplHeader"><![CDATA[
+			if( $GLOBALS['block_keys']['geo_filter_block'] )
+			{
+				if( $GLOBALS['config']['mf_geo_block_autocomplete'] )
+				{
+					echo '<script type="text/javascript" src="'.RL_PLUGINS_URL.'multiField/static/jquery.geo_autocomplete.js"></script>';
+				}
+
+				echo '<link href="'.RL_PLUGINS_URL.'multiField/static/style.css" type="text/css" rel="stylesheet" />';
+			}
+			]]></hook>
+		<hook name="apPhpDataFormatsBottom"><![CDATA[
+			if( $GLOBALS['rlDb'] -> getOne( "Key", "`Key` = '".$_GET['format']."'", 'multi_formats' ) && $_GET['mode'] == 'manage')
+			{
+				$GLOBALS['reefless'] -> redirect(array("controller" => 'multi_formats', 'parent' => $_GET['format'] ));
+			}
+			]]></hook>
+		<hook name="apPhpFormatsAjaxDeleteFormatPreDelete"><![CDATA[
+			global $id, $rlDb;
+
+			$sql = "SELECT GROUP_CONCAT(`ID`) AS `ids` FROM `".RL_DBPREFIX."data_formats` WHERE `Parent_ID` = ".$id;
+			$child = $rlDb -> getRow( $sql );
+
+			$sql = "SELECT GROUP_CONCAT(`ID`) AS `ids` FROM `".RL_DBPREFIX."data_formats` WHERE FIND_IN_SET(`Parent_ID`, '".$child['ids']."')";
+			$child = $rlDb -> getRow( $sql );
+
+			if($child['ids'])
+			{
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> deleteChildItems( $child['ids'] );
+			}
+
+			$format_key = $rlDb -> getOne('Key', "`ID` = '{$id}'", 'data_formats');
+			$sql ="DELETE FROM `".RL_DBPREFIX."multi_formats` WHERE `Key` = '{$format_key}'";
+			$rlDb -> query($sql);
+			]]></hook>
+		<hook name="tplListingFieldSelect"><![CDATA[
+			$GLOBALS['rlSmarty'] -> display( RL_PLUGINS . 'multiField' . RL_DS . 'mf_block.tpl' );
+			]]></hook>
+		<hook name="tplSearchFieldSelect"><![CDATA[
+			$GLOBALS['rlSmarty'] -> display( RL_PLUGINS . 'multiField' . RL_DS . 'mf_block.tpl' );
+			]]></hook>
+		<hook name="tplRegFieldSelect"><![CDATA[
+			$GLOBALS['rlSmarty'] -> display( RL_PLUGINS . 'multiField' . RL_DS . 'mf_block_account.tpl' );
+			]]></hook>
+		<hook name="tplProfileFieldSelect"><![CDATA[
+			$GLOBALS['rlSmarty'] -> display( RL_PLUGINS . 'multiField' . RL_DS . 'mf_block_account.tpl' );
+			]]></hook>
+		<hook name="apPhpFieldsAjaxDeleteField" version="1.1.1"><![CDATA[
+			global $field;
+			if( !$field['Key'] && $field['ID'] )
+			{
+				$field['Key'] = $GLOBALS['rlDb'] -> getOne('Key', "`ID` = '{$field['ID']}'", 'listing_fields');
+			}			
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+			$GLOBALS['rlMultiField'] -> deleteFieldChildFields($field['Key'], 'listing');
+			]]></hook>
+		<hook name="apPhpFieldsAjaxDeleteAField"><![CDATA[
+			global $id;
+			$key = $GLOBALS['rlDb'] -> getOne('Key', "`ID` = '{$id}'", 'account_fields');
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+			$GLOBALS['rlMultiField'] -> deleteFieldChildFields($key, 'account');
+			]]></hook>
+		<hook name="apPhpListingFieldsTop"><![CDATA[
+			$sql ="SELECT `T1`.`Condition` FROM `".RL_DBPREFIX."listing_fields` AS `T1` ";
+			$sql .="JOIN `".RL_DBPREFIX."multi_formats` AS `T2` ON `T2`.`Key` = `T1`.`Condition` ";
+			$sql .="WHERE `T1`.`Key` = '".$_GET['field']."' AND `T1`.`Key` REGEXP 'level[0-9]' ";
+			global $disable_condition;
+			$disable_condition = $GLOBALS['rlDb'] -> getRow($sql);
+			]]></hook>
+		<hook name="apTplFieldsFormBottom" version="1.0.1"><![CDATA[
+			if( $GLOBALS['disable_condition'] )
+			{
+				echo '<script type="text/javascript">$(document).ready(function(){';
+				echo "$('#dd_select_block').attr('disabled', 'disabled').addClass('disabled');";
+				echo "$('#dd_select_block').after('<input ";
+				echo 'type="hidden" name="data_format" value="'.$GLOBALS['disable_condition']['Condition'].'"';
+				echo "/>');";
+				echo '})</script>';
+			}
+			]]></hook>
+		<hook name="apPhpAccountFieldsTop"><![CDATA[
+			$sql ="SELECT `T1`.`Condition` FROM `".RL_DBPREFIX."account_fields` AS `T1` ";
+			$sql .="JOIN `".RL_DBPREFIX."multi_formats` AS `T2` ON `T2`.`Key` = `T1`.`Condition` ";
+			$sql .="WHERE `T1`.`Key` = '".$_GET['field']."' AND `T1`.`Key` REGEXP 'level[0-9]'";
+			global $disable_condition;
+			$disable_condition = $GLOBALS['rlDb'] -> getRow($sql);
+			]]></hook>	
+		<hook name="apPhpListingFieldsBeforeEdit"><![CDATA[
+			global $f_data, $rlDb;
+
+			$current_format = $rlDb -> getOne("Condition", "`Key` = '".$f_data['key']."'", 'listing_fields');
+
+			$old_multi = $rlDb -> getOne("Key", "`Key` = '".$current_format."'", 'multi_formats');
+			$new_multi = $rlDb -> getOne("Key", "`Key` = '".$f_data['data_format']."'", 'multi_formats');
+
+			if( $new_multi && !$old_multi ) //field condition changed to multiformat condition - we should add subfields for the field.
+			{
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> createSubFields( $f_data, 'listing' );
+			}elseif( $old_multi && !$new_multi )
+			{
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> deleteSubFields( $f_data, 'listing' );
+			}elseif( $old_multi && $new_multi && $old_multi != $new_multi)
+			{
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> deleteSubFields( $f_data, 'listing' );
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> createSubFields( $f_data, 'listing' );
+			}
+			]]></hook>
+		<hook name="apPhpAccountFieldsBeforeEdit"><![CDATA[
+			global $f_data, $rlDb;
+
+			$current_format = $rlDb -> getOne("Condition", "`Key` = '".$f_data['key']."'", 'account_fields');
+
+			$old_multi = $rlDb -> getOne("Key", "`Key` = '".$current_format."'", 'multi_formats');
+			$new_multi = $rlDb -> getOne("Key", "`Key` = '".$f_data['data_format']."'", 'multi_formats');
+
+			if( $new_multi && !$old_multi ) //field condition changed to multiformat condition - we should add subfields for the field.
+			{
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> createSubFields( $f_data, 'account' );
+			}elseif( $old_multi && !$new_multi )
+			{
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> deleteSubFields( $f_data, 'account' );
+			}elseif( $old_multi && $new_multi && $old_multi != $new_multi)
+			{
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> deleteSubFields( $f_data, 'account' );
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$GLOBALS['rlMultiField'] -> createSubFields( $f_data, 'account' );
+			}
+			]]></hook>		
+		<hook name="adaptValueBottom"><![CDATA[
+			global $multi_formats;
+
+			/*$param1 = $value; $param2 = $field, $out = param3;*/
+		
+			if($multi_formats[ $param2['Condition'] ] && strpos($param2['Key'],'level') !== false)
+			{
+				$param3 = $GLOBALS['rlDb'] -> getOne('Value', "`Key` = 'data_formats+name+".$param1."' AND `Code` = '".RL_LANG_CODE."'",'lang_keys');
+			}
+			]]></hook>
+		<hook name="specialBlock" version="1.1.1"><![CDATA[
+			global $page_info;
+
+			if( in_array($page_info['Controller'], array('add_listing', 'edit_listing', 'home', 'listing_type', 'search', 'registration', 'profile', 'account_type','listings_by_field' )) )
+			{
+				global $multi_formats, $rlDb, $rlSmarty;
+
+				$sql = "SELECT `T1`.*, `T2`.`Order_type` FROM `".RL_DBPREFIX."multi_formats` AS `T1` ";
+				$sql .="LEFT JOIN `".RL_DBPREFIX."data_formats` AS `T2` ON `T2`.`Key` = `T1`.`Key` ";
+				$sql .="WHERE `T1`.`Status` = 'active'";
+				$mf_tmp = $rlDb -> getAll($sql);
+
+				foreach( $mf_tmp as $key => $item )
+				{
+					$multi_formats[ $item['Key'] ] = $item;
+				}
+
+				unset($mf_tmp);
+				$rlSmarty -> assign( 'multi_formats', $multi_formats );
+
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');				
+				$GLOBALS['rlXajax'] -> registerFunction( array( 'mfGetNext', $GLOBALS['rlMultiField'], 'ajaxGetNext' ) );
+				$GLOBALS['rlXajax'] -> registerFunction( array( 'mfBuild', $GLOBALS['rlMultiField'], 'ajaxBuild' ) );
+
+
+				if( in_array($_POST['xjxfun'], array('ajaxGetNext', 'ajaxBuild' ) ) )
+				{
+					$GLOBALS['rlXajax'] -> processRequest();
+					exit;
+				}
+			}
+
+			if( $GLOBALS['geo_format'] )
+			{
+				if( $GLOBALS['block_keys']['geo_filter_block'] )
+				{
+					$geo_block_data = $GLOBALS['rlMultiField'] -> getGeoBlockData( $GLOBALS['geo_format'] );
+					$GLOBALS['rlSmarty'] -> assign( 'geo_block_data', $geo_block_data );
+				}
+
+				$GLOBALS['rlSmarty'] -> assign( 'geo_format', $GLOBALS['geo_format'] );
+				
+				if( !$GLOBALS['config']['mf_geo_block_list'] )
+				{
+					$GLOBALS['rlXajax'] -> registerFunction( array( 'geoGetNext', $GLOBALS['rlMultiField'], 'ajaxGeoGetNext' ) );
+					$GLOBALS['rlXajax'] -> registerFunction( array( 'geoBuild', $GLOBALS['rlMultiField'], 'ajaxGeoBuild' ) );
+				
+					if( in_array($_POST['xjxfun'], array( 'ajaxGeoGetNext', 'ajaxGeoBuild' ) ) )
+					{
+						$GLOBALS['rlXajax'] -> processRequest();
+						exit;
+					}
+				}
+			}
+			]]></hook>
+		<hook name="apPhpAccountsTop"><![CDATA[
+			global $multi_formats, $rlDb, $rlSmarty;
+
+			$sql = "SELECT `T1`.*, `T2`.`Order_type` FROM `".RL_DBPREFIX."multi_formats` AS `T1` ";
+			$sql .="LEFT JOIN `".RL_DBPREFIX."data_formats` AS `T2` ON `T2`.`Key` = `T1`.`Key` ";
+			$sql .="WHERE `T1`.`Status` = 'active'";
+			$mf_tmp = $rlDb -> getAll($sql);
+
+			foreach( $mf_tmp as $key => $item )
+			{
+				$multi_formats[ $item['Key'] ] = $item;
+			}
+			unset($mf_tmp);
+			$rlSmarty -> assign( 'multi_formats', $multi_formats );
+
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');				
+			$GLOBALS['rlXajax'] -> registerFunction( array( 'mfGetNext', $GLOBALS['rlMultiField'], 'ajaxGetNext' ) );
+			$GLOBALS['rlXajax'] -> registerFunction( array( 'mfBuild', $GLOBALS['rlMultiField'], 'ajaxBuild' ) );			
+			]]></hook>
+		<hook name="apPhpListingsTop"><![CDATA[
+			global $multi_formats, $rlDb, $rlSmarty;
+
+			$sql = "SELECT `T1`.*, `T2`.`Order_type` FROM `".RL_DBPREFIX."multi_formats` AS `T1` ";
+			$sql .="LEFT JOIN `".RL_DBPREFIX."data_formats` AS `T2` ON `T2`.`Key` = `T1`.`Key` ";
+			$sql .="WHERE `T1`.`Status` = 'active'";
+			$mf_tmp = $rlDb -> getAll($sql);
+
+			foreach( $mf_tmp as $key => $item )
+			{
+				$multi_formats[ $item['Key'] ] = $item;
+			}
+			unset($mf_tmp);
+			$rlSmarty -> assign( 'multi_formats', $multi_formats );
+
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');				
+			$GLOBALS['rlXajax'] -> registerFunction( array( 'mfGetNext', $GLOBALS['rlMultiField'], 'ajaxGetNext' ) );
+			$GLOBALS['rlXajax'] -> registerFunction( array( 'mfBuild', $GLOBALS['rlMultiField'], 'ajaxBuild' ) );			
+			]]></hook>
+		<hook name="apPhpControlsBottom"><![CDATA[
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+			$GLOBALS['rlXajax'] -> registerFunction( array( 'rebuildMultiFields', $GLOBALS['rlMultiField'], 'ajaxRebuildMultiField' ) );
+			$GLOBALS['rlXajax'] -> registerFunction( array( 'rebuildPath', $GLOBALS['rlMultiField'], 'ajaxRebuildPath' ) );
+			]]></hook>
+		<hook name="apTplControlsForm"><![CDATA[
+			echo '<tr class="body"><td class="list_td_light">'.$GLOBALS['lang']['mf_rebuild'].'</td>';
+			echo '<td class="list_td_light" align="center" style="width: 200px;">';
+			echo '<input id="mf_rebuild" type="button" onclick="xajax_rebuildMultiFields(';
+			echo "'#mf_rebuild');$(this).val('".$GLOBALS['lang']['loading']."');";
+			echo '"';
+			echo 'value="'.$GLOBALS['lang']['rebuild'].'" style="margin: 0;width: 100px;" /></td></tr>';
+
+			echo '<tr class="body"><td class="list_td">'.$GLOBALS['lang']['mf_rebuild_del'].'</td>';
+			echo '<td class="list_td" align="center" style="width: 200px;">';
+			echo '<input id="mf_rebuild_del" type="button" onclick="xajax_rebuildMultiFields(';
+			echo "'#mf_rebuild_del', 'delete_existing');$(this).val('".$GLOBALS['lang']['loading']."');";
+			echo '"';
+			echo 'value="'.$GLOBALS['lang']['rebuild'].'" style="margin: 0;width: 100px;" /></td></tr>';
+
+			echo '<tr class="body"><td class="list_td_light">'.$GLOBALS['lang']['mf_rebuild_path'].'</td>';
+			echo '<td class="list_td_light" align="center" style="width: 200px;">';
+			echo '<input id="mf_path_rebuild" type="button" onclick="xajax_rebuildPath(';
+			echo "'#mf_path_rebuild');$(this).val('".$GLOBALS['lang']['loading']."');";
+			echo '"';
+			echo 'value="'.$GLOBALS['lang']['mf_refresh'].'" style="margin: 0;width: 100px;" /></td></tr>';
+		]]></hook>
+		<hook name="phpSubmitProfileEnd"><![CDATA[
+			$tpl2 = RL_PLUGINS.'multiField' . RL_DS . 'mf_reg_js.tpl';
+			$js = $GLOBALS['rlSmarty'] -> fetch( $tpl2, null, null, false );
+			$GLOBALS['_response'] -> script($js);
+		]]></hook>
+		<hook name="apPhpSubmitProfileEnd"><![CDATA[
+			$tpl2 = RL_PLUGINS.'multiField' . RL_DS . 'mf_reg_js.tpl';
+			$js = $GLOBALS['rlSmarty'] -> fetch( $tpl2, null, null, false );
+			$GLOBALS['_response'] -> script($js);
+		]]></hook>
+		<hook name="apPhpGetAccountFieldsEnd"><![CDATA[
+			$tpl2 = RL_PLUGINS.'multiField' . RL_DS . 'mf_reg_js.tpl';
+			$js = $GLOBALS['rlSmarty'] -> fetch( $tpl2, null, null, false );
+			$GLOBALS['_response'] -> script($js);
+		]]></hook>
+		<hook name="apTplAccountFieldSelect"><![CDATA[
+			$GLOBALS['rlSmarty'] -> display( RL_PLUGINS . 'multiField' . RL_DS . 'mf_block_account.tpl' );
+			]]></hook>
+		<hook name="apTplListingFieldSelect"><![CDATA[
+			$GLOBALS['rlSmarty'] -> display( RL_PLUGINS . 'multiField' . RL_DS . 'mf_block.tpl' );
+			]]></hook>
+
+		<hook name="apPhpListingFieldsAfterAdd"><![CDATA[
+			global $f_data;
+
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+			$GLOBALS['rlMultiField'] -> createSubFields( $f_data, 'listing' );
+			]]></hook>
+		<hook name="apPhpAccountFieldsAfterAdd"><![CDATA[
+			global $f_data;
+
+			$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+			$GLOBALS['rlMultiField'] -> createSubFields( $f_data, 'account' );
+			]]></hook>
+		<hook name="init"><![CDATA[
+			global $geo_format;
+			$geo_format = $GLOBALS['rlDb'] -> getOne("Key", "`Geo_filter` = '1'", "multi_formats");
+
+			if( $geo_format )
+			{
+				global $geo_filter_data;
+	
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+				$geo_filter_data = $GLOBALS['rlMultiField'] -> prepareGet();
+
+				$GLOBALS['rlSmarty'] -> assign_by_ref('geo_filter_data', $geo_filter_data);				
+			}
+			]]></hook>	
+		<hook version="1.1.1" name="phpCategoriesGetCategoriesCache"><![CDATA[
+			if( $GLOBALS['geo_format'] && !$GLOBALS['rlMobile'] -> isMobile )
+			{
+				$param1 = $GLOBALS['rlMultiField'] -> adaptCategories( $param1 );
+			}
+		]]></hook>
+		<hook version="1.1.1" name="phpCategoriesGetCategories"><![CDATA[
+			if( $GLOBALS['geo_format'] && !$GLOBALS['rlMobile'] -> isMobile )
+			{
+				$param1 = $GLOBALS['rlMultiField'] -> adaptCategories( $param1 );
+			}
+		]]></hook>
+		<hook version="1.1.1" name="listingsModifyWhere"><![CDATA[
+			if( $GLOBALS['geo_format'] && !$GLOBALS['rlMobile'] -> isMobile )
+			{
+				global $sql, $geo_filter_data;
+				foreach( $geo_filter_data['lfields'] as $field => $value )
+				{
+					$sql .="AND `T1`.`{$field}` = '{$value}' ";
+				}
+			}
+			]]></hook>
+		<hook version="1.1.1" name="listingsModifyWhereByAccount"><![CDATA[
+			if( $GLOBALS['geo_format'] && !$GLOBALS['rlMobile'] -> isMobile )
+			{
+				global $sql, $geo_filter_data;
+				foreach( $geo_filter_data['lfields'] as $field => $value )
+				{
+					$sql .="AND `T1`.`{$field}` = '{$value}' ";
+				}
+			}
+			]]></hook>
+		<hook version="1.1.1" name="listingsModifyWhereByPeriod"><![CDATA[
+			if( $GLOBALS['geo_format'] && !$GLOBALS['rlMobile'] -> isMobile )
+			{
+				global $sql, $geo_filter_data;
+				foreach( $geo_filter_data['lfields'] as $field => $value )
+				{
+					$sql .="AND `T1`.`{$field}` = '{$value}' ";
+				}
+			}
+			]]></hook>
+		<hook version="1.1.1" name="listingsModifyWhereFeatured"><![CDATA[
+			if( $GLOBALS['geo_format'] && !$GLOBALS['rlMobile'] -> isMobile )
+			{
+				global $sql, $geo_filter_data;
+				foreach( $geo_filter_data['lfields'] as $field => $value )
+				{
+					$sql .="AND `T1`.`{$field}` = '{$value}' ";
+				}
+			}
+			]]></hook>
+		<hook version="1.1.1" name="listingsModifyWhereSearch"><![CDATA[
+			if( $GLOBALS['geo_format'] && !$GLOBALS['rlMobile'] -> isMobile )
+			{				
+				global $sql, $geo_filter_data;
+				foreach( $geo_filter_data['lfields'] as $field => $value )
+				{
+					$sql .="AND `T1`.`{$field}` = '{$value}' ";
+				}
+			}
+			]]></hook>
+		<hook name="phpListingsGetMyListings"><![CDATA[
+			foreach( array_reverse($GLOBALS['geo_filter_data']['lfields_list']) as $gk => $gfield )
+			{	
+				if( $param1[$gfield] )
+				{
+					$param1['geo_path'] = $GLOBALS['rlDb'] -> getOne("Path", "`Key` = '".$param1[$gfield]."'", "data_formats");
+					break;
+				}
+			}
+			]]></hook>
+		<hook name="myListingTop"><![CDATA[
+			if( $GLOBALS['geo_format'] )
+			{
+				$rlBase = $GLOBALS['geo_filter_data']['bPath'];
+				$listing = $GLOBALS['rlSmarty'] -> get_template_vars('listing');
+				if( $listing['geo_path'] )
+				{
+					$rlBase .= $listing['geo_path']."/";
+				}
+				$GLOBALS['rlSmarty'] -> assign('rlBase', $rlBase);
+			}
+			]]></hook>
+		<hook name="phpSmartyClassFetch"><![CDATA[
+	                foreach( $GLOBALS['geo_filter_data']['clean_pages'] as $page)
+        	        {
+                	        $sfind[] = $GLOBALS['geo_filter_data']['bPath'].$GLOBALS['geo_filter_data']['geo_url']."/".$page;
+                        	$sreplace[] = $GLOBALS['geo_filter_data']['bPath'].$page;
+			}
+			$param1 = str_replace($sfind, $sreplace, $param1);
+			]]></hook>
+		</hooks>
+
+		<hook name="apPhpPagesPost"><![CDATA[
+				$_POST['geo_exclude'] = $GLOBALS['info']['Geo_exclude'];
+		]]></hook>
+		<hook name="apTplPagesForm"><![CDATA[
+			echo '<tr><td class="name">'.$GLOBALS['lang']['mf_geo_exclude_page'].'</td><td class="field">';					
+			if( $_POST['geo_exclude'] == '1' )
+			{
+				$geo_exclude_yes =' checked="checked"';
+			}elseif( $_POST['geo_exclude'] == '1' )
+			{
+				$geo_exclude_no =' checked="checked"';
+			}else
+			{
+				$geo_exclude_no =' checked="checked"';
+			}
+			echo '<label><input '.$geo_exclude_no.' class="lang_add" type="radio" name="geo_exclude" value="0" />&nbsp;'.$GLOBALS['lang']['enabled'].'</label>';
+			echo '<label><input '.$geo_exclude_yes.' class="lang_add" type="radio" name="geo_exclude" value="1" />&nbsp;'.$GLOBALS['lang']['disabled'].'</label></td></tr>';
+		]]></hook>
+		<hook name="apPhpPagesBeforeAdd"><![CDATA[
+			$GLOBALS['data']['Geo_exclude'] = $_POST['geo_exclude'];
+			]]></hook>
+		<hook name="apPhpPagesBeforeEdit"><![CDATA[
+			$GLOBALS['update_data']['fields']['Geo_exclude'] = $_POST['geo_exclude'];
+			]]></hook>
+
+		<hook name="boot" version="1.1.0">
+			<![CDATA[
+			if( $GLOBALS['rlMultiField'] )
+			{
+				$GLOBALS['rlMultiField'] -> adaptPageInfo();
+			}
+			]]>
+		</hook>
+		<hook name="pageTitle" version="1.1.0">
+			<![CDATA[
+			if( $GLOBALS['rlMultiField'] )
+			{
+				$param1 = $GLOBALS['rlMultiField'] -> adaptPageTitle( $param1 );
+			}
+			]]>
+		</hook>
+	</hooks>	
+
+	<phrases>
+		<phrase key="ext_multi_formats_manager" module="ext"><![CDATA[Multi-leveled Data Entries]]></phrase>
+		<phrase key="mf_field" module="admin"><![CDATA[Connected field]]></phrase>
+		<phrase key="mf_edit_item" module="admin"><![CDATA[Edit Entry]]></phrase>		
+		<phrase key="mf_add_item" module="admin"><![CDATA[Add an Entry]]></phrase>
+		<phrase key="mf_formats_list" module="admin"><![CDATA[List of Entries]]></phrase>		
+		<phrase key="mf_manage_items" module="admin"><![CDATA[Manage Items]]></phrase>		
+		<phrase key="mf_order_type" module="admin"><![CDATA[Sorting order]]></phrase>
+		<phrase key="mf_name" module="admin"><![CDATA[Name]]></phrase>
+		<phrase key="mf_type" module="admin"><![CDATA[Create as]]></phrase>
+		<phrase key="mf_type_new" module="admin"><![CDATA[New data entry]]></phrase>
+		<phrase key="mf_type_ex" module="admin"><![CDATA[Addition to existing data entry]]></phrase>
+		<phrase key="mf_data_entry" module="admin"><![CDATA[Connected data entry]]></phrase>		
+		<phrase key="mf_lf_created" module="admin"><![CDATA[Listing field for this level has been created automatically, to edit the field click [here] ]]></phrase>
+		<phrase key="mf_af_created" module="admin"><![CDATA[Account field for this level has been created automatically, to edit the field click [here] ]]></phrase>
+		<phrase key="mf_related_listing_fields" module="admin"><![CDATA[Listing fields linked to this level]]></phrase>
+		<phrase key="mf_related_account_fields" module="admin"><![CDATA[Account fields linked to this level]]></phrase>
+		<phrase key="mf_related_fields" module="admin"><![CDATA[Connected fields]]></phrase>
+		<phrase key="mf_no_related_fields" module="admin"><![CDATA[No fields]]></phrase>
+		<phrase key="mf_rebuild" module="admin"><![CDATA[Rebuild Multi Fields (Add missing fields)]]></phrase>
+		<phrase key="mf_rebuild_del" module="admin"><![CDATA[Rebuild Multi Fields (Recreate all)]]></phrase>
+		<phrase key="mf_fields_rebuilt" module="admin"><![CDATA[Fields have been rebuilt]]></phrase>
+		<phrase key="mf_import_flsource" module="admin"><![CDATA[Import Data]]></phrase>
+		<phrase key="mf_remove_items" module="admin"><![CDATA[Remove items]]></phrase>
+		<phrase key="mf_server_datalist" module="admin"><![CDATA[List of Data Entries available on the Flynax server]]></phrase>
+		<phrase key="mf_import_all" module="admin"><![CDATA[Import the entire database]]></phrase>
+		<phrase key="mf_import_partially" module="admin"><![CDATA[Select items to be imported]]></phrase>
+		<phrase key="mf_choose_items_to_import" module="admin"><![CDATA[Select items to be imported]]></phrase>
+		<phrase key="mf_import_without_parent_hint" module="admin"><![CDATA[Checking the box will import parent item, and if unchecked the parent item will be left out.]]></phrase>
+		<phrase key="mf_import_without_parent_ignore" module="admin"><![CDATA[Include the parent item]]></phrase>
+		<phrase key="mf_import_completed" module="admin"><![CDATA[Selected items successfully imported]]></phrase>
+
+		<phrase key="mf_import_progress" module="admin"><![CDATA[ [imported] items of [total] imported]]></phrase>
+		<phrase key="mf_geofilter" module="admin"><![CDATA[Geo Filtering]]></phrase>
+		<phrase key="mf_path" module="admin"><![CDATA[Path]]></phrase>
+		<phrase key="mf_path_short" module="admin"><![CDATA[Path is short]]></phrase>
+		<phrase key="mf_path_exists" module="admin"><![CDATA[The path is already in use, type different path]]></phrase>
+		<phrase key="mf_geo_exclude_page" module="admin"><![CDATA[GEO Filtering]]></phrase>
+		<phrase key="mf_rebuild_path" module="admin"><![CDATA[Refresh Paths]]></phrase>
+		<phrase key="mf_refresh" module="admin"><![CDATA[Refresh]]></phrase>
+		<phrase key="mf_geo_path_rebuilt" module="admin"><![CDATA[Paths refreshed]]></phrase>
+		<phrase key="mf_geo_path_nogeo" module="admin"><![CDATA[No Data Entry enabled for Geo Filter]]></phrase>
+		<phrase key="ext_notice_delete_format" module="ext"><![CDATA[Are you sure you want to delete selected entry? This will delete all child items except 1st level items which Data Entries can use]]></phrase>
+		<phrase key="ext_notice_delete_item" module="ext"><![CDATA[Are you sure you want to delete selected item?]]></phrase>
+		<phrase key="mf_geo_select_location" module="frontEnd"><![CDATA[Select location]]></phrase>
+		<phrase key="mf_geo_gobutton" module="frontEnd"><![CDATA[Go]]></phrase>
+		<phrase key="mf_geo_choose_location" module="frontEnd"><![CDATA[Select your location]]></phrase>
+		<phrase key="mf_geo_remove" module="frontEnd"><![CDATA[Remove selection]]></phrase>
+		<phrase key="mf_collapse" module="frontEnd"><![CDATA[Collapse list]]></phrase>
+		<phrase key="mf_expand" module="frontEnd"><![CDATA[Expand list]]></phrase>
+		<phrase key="mf_importing" module="admin"><![CDATA[Importing]]></phrase>
+		<phrase key="mf_total" module="admin"><![CDATA[Total]]></phrase>
+		<phrase key="mf_importing_caption" module="admin"><![CDATA[Importing... please wait]]></phrase>
+		<phrase key="mf_geo_show_other_items" module="admin"><![CDATA[Show the rest of items]]></phrase>
+		<phrase key="mf_geo_type_location" module="frontEnd"><![CDATA[Type your location here]]></phrase>
+		<phrase key="mf_geo_box_default" module="frontEnd"><![CDATA[Geo filtering is not configured]]></phrase>
+		<phrase version="1.0.2" key="mf_import_current" module="admin"><![CDATA[Current item]]></phrase>
+		<phrase version="1.0.2" key="mf_import_subprogress" module="admin"><![CDATA[Item progress]]></phrase>
+		<phrase version="1.0.2" key="mf_import" module="admin"><![CDATA[Import]]></phrase>
+		<phrase version="1.0.2" key="mf_import_resume" module="admin"><![CDATA[Resume previous import]]></phrase>
+	</phrases>
+
+	<configs key="geo_filter_config" name="Geo Filter">
+		<![CDATA[]]>
+
+		<config key="mf_geo_block_list" name="Locations as a list" description="If disabled locations will be represented as dropdowns" values="" type="bool" validate=""><![CDATA[1]]></config>
+		<config key="mf_geo_block_autocomplete" name="Autocompletion field" description="" values="" type="bool" validate=""><![CDATA[1]]></config>
+		<config key="mf_geo_multileveled" name="Multi-leveled representation of locations" description="" values="" type="bool" validate=""><![CDATA[0]]></config>
+		<config key="mf_geo_levels_toshow" name="Number of levels in list" description="If multi-leveled representation is enabled" values="" type="text" validate=""><![CDATA[3]]></config>
+		<config key="mf_geo_autocomplete_limit" name="Number of locations autocompleted" description="set 0 to return all" values="" type="text" validate=""><![CDATA[20]]></config>
+		<config key="mf_geo_visible_number" name="Number of locations shown in list" description="other locations will be hidden and shown when a user clicks to see more" values="" type="text" validate=""><![CDATA[10]]></config>
+		<config key="mf_geo_columns" name="Number of columns in list" description="" values="" type="text" validate=""><![CDATA[2]]></config>
+		<config key="mf_geo_cookie_lifetime" name="Cookie expiration period" description="days" values="" type="text" validate=""><![CDATA[10]]></config>
+		<config key="mf_geo_autodetect" name="Location autodetection" description="" values="" type="bool" validate=""><![CDATA[1]]></config>
+		<config version="1.0.2" key="mf_import_per_run" name="Items per request" description="for the import function" values="" type="text" validate=""><![CDATA[1000]]></config>
+		<config version="1.0.2" key="mf_cache_data_formats" name="" description="" values="" type="text" validate=""><![CDATA[1000]]></config>
+	</configs>
+
+	<blocks>
+		<block key="geo_filter_block" name="Your Location" side="left" type="smarty" tpl="1"><![CDATA[			
+			{include file=$smarty.const.RL_PLUGINS|cat:"multiField"|cat:$smarty.const.RL_DS|cat:"geo_block.tpl"}
+		]]></block>
+	</blocks>
+	
+	<updates>
+		<update version="1.0.1"><![CDATA[ ]]></update>
+		<update version="1.0.2" files="static/lib.js,admin/import.php,rlMultiField.class.php,admin/flsource.tpl,admin/import_interface.tpl,admin/multi_formats.tpl,admin/multi_formats.inc.php,static/aStyle.css,autocomplete.inc.php,geo_block.tpl,mf_block.tpl,static/jquery.geo_autocomplete.js"><![CDATA[
+			$sql = "UPDATE `".RL_DBPREFIX."config` SET `Group_ID` = 0 WHERE `Key` = 'mf_cache_data_formats' LIMIT 1";
+			$GLOBALS['rlDb'] -> query($sql); 
+			]]></update>
+		<update version="1.0.3" files="rlMultiField.class.php,mf_block.tpl"><![CDATA[
+			if( !$GLOBALS['rlDb'] -> getRow("SHOW INDEXES FROM `".RL_DBPREFIX."data_formats` WHERE `Column_name` = 'Key'") )
+			{
+				$sql = "ALTER TABLE `".RL_DBPREFIX."data_formats` ADD INDEX ( `Key` ) ";
+				$GLOBALS['rlDb'] -> query($sql);
+			}
+			if( !$GLOBALS['rlDb'] -> getRow("SHOW INDEXES FROM `".RL_DBPREFIX."lang_keys` WHERE `Column_name` = 'Module'") )
+			{
+				$sql = "ALTER TABLE `".RL_DBPREFIX."lang_keys` ADD INDEX ( `Module` ) ";
+				$GLOBALS['rlDb'] -> query($sql);
+			}
+			]]></update>
+		<update version="1.1.0" files="rlMultiField.class.php,geo_block.tpl,mf_block.tpl,admin/import.php"><![CDATA[
+			]]></update>
+		<update version="1.1.1" files="rlMultiField.class.php,mf_block.tpl,admin/import.php,admin/multi_formats.tpl"><![CDATA[
+			]]></update>
+	</updates>
+	
+	<uninstall><![CDATA[
+		global $rlDb;
+
+		$sql = "SELECT * FROM `".RL_DBPREFIX."multi_formats` WHERE 1 ";
+		$multi_formats = $rlDb -> getAll( $sql );
+		
+		foreach( $multi_formats as $key => $format)
+		{
+			$format_id = $rlDb -> getOne( "ID", "`Key` = '".$format['Key']."'", "data_formats" );
+			if( $format_id )
+			{
+				$sql = "SELECT `ID` FROM `".RL_DBPREFIX."data_formats` WHERE `Parent_ID` = ".$format_id;
+				$child_t = $rlDb -> getAll( $sql );
+				foreach( $child_t as $ck => $cv ){
+					$child .= $cv['ID'].",";
+				}
+
+				$sql = "SELECT `ID` FROM `".RL_DBPREFIX."data_formats` WHERE FIND_IN_SET(`Parent_ID`, '".rtrim($child, ",")."')";
+				$child_t = $rlDb -> getAll( $sql );
+				$child = '';
+				foreach( $child_t as $ck => $cv ){
+					$child .= $cv['ID'].",";
+				}
+
+
+				$GLOBALS['reefless'] -> loadClass('MultiField', null, 'multiField');
+	
+				$GLOBALS['rlMultiField'] -> deleteChildItems( rtrim($child, ",") );
+				$GLOBALS['rlMultiField'] -> deleteFormatChildFields( $format['Key'], 'listing' );
+				$GLOBALS['rlMultiField'] -> deleteFormatChildFields( $format['Key'], 'account' );
+			}
+		}
+
+		$GLOBALS['rlCache'] -> updateDataFormats();
+		$GLOBALS['rlCache'] -> updateForms();
+
+		$sql ="DROP TABLE `".RL_DBPREFIX."multi_formats`";
+		$rlDb -> query( $sql );
+
+		$sql ="ALTER TABLE `".RL_DBPREFIX."data_formats` DROP `Path`;";
+		$rlDb->query( $sql );
+
+		$sql ="ALTER TABLE `".RL_DBPREFIX."pages` DROP `Geo_exclude`";
+		$GLOBALS['rlDb']->query( $sql );
+	]]>
+	</uninstall>
+</plugin>

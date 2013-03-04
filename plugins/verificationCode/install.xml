@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="verificationCode">
+	<title>Verification Code</title>
+	<description>Verification Code</description>
+	<author>Vladimir</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>1.0.0</version>
+	<date>08.11.2012</date>
+	<controller>verification_code</controller>
+
+	<files>
+		<file>admin/verification_code.inc.php</file>
+		<file>admin/verification_code.tpl</file>
+		<file>rlVerificationCode.class.php</file>
+		<file>tplFooter.tpl</file>
+		<file>tplHeader.tpl</file>
+	</files>
+	
+	<install>
+		<![CDATA[
+			global $rlDb;
+
+			$sql = "CREATE TABLE `" . RL_DBPREFIX . "verification_code` (
+				`ID` int(11) NOT NULL auto_increment,
+				`Name` varchar(255) NOT NULL default '',
+				`Content` mediumtext NOT NULL default '',
+				`Date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+			  	`Pages` text NOT NULL,       
+				`Status` enum('active','approval','trash') NOT NULL default 'active',
+				`Position` enum('footer','header') NOT NULL default 'footer',
+			  	`Pages_sticky` enum('0','1') NOT NULL DEFAULT '0',
+			KEY `ID` (`ID`)
+			) CHARSET=utf8";
+
+			$rlDb -> query( $sql );
+		]]>
+	</install>
+
+	<hooks>
+		<hook name="tplFooter">
+			<![CDATA[                                  
+				$GLOBALS['rlSmarty'] -> display( RL_ROOT . 'plugins' . RL_DS . 'verificationCode' . RL_DS . 'tplFooter.tpl' );
+			]]>
+		</hook>
+		<hook name="tplHeader">
+			<![CDATA[
+				$GLOBALS['rlSmarty'] -> display( RL_ROOT . 'plugins' . RL_DS . 'verificationCode' . RL_DS . 'tplHeader.tpl' );
+			]]>
+		</hook>
+		<hook name="specialBlock">
+			<![CDATA[]]>
+		</hook>
+	</hooks>
+
+	<phrases>		
+		<phrase key="ext_vc_name" module="ext"><![CDATA[Name]]></phrase>
+		<phrase key="ext_vc_position" module="ext"><![CDATA[Position]]></phrase>
+		<phrase key="ext_vc_manager" module="ext"><![CDATA[Code Manager]]></phrase>
+
+		<phrase key="vc_add_item" module="admin"><![CDATA[Add a Code]]></phrase>
+		<phrase key="vc_edit_item" module="admin"><![CDATA[Edit Code]]></phrase>
+		<phrase key="verification_code_list" module="admin"><![CDATA[List of Codes]]></phrase>
+		<phrase key="vc_name" module="admin"><![CDATA[Name]]></phrase>
+		<phrase key="vc_position" module="admin"><![CDATA[Position]]></phrase>
+		<phrase key="vc_content" module="admin"><![CDATA[JS sript / META tag]]></phrase>
+		<phrase key="vc_item_added" module="admin"><![CDATA[The Item has been successfully added]]></phrase>
+		<phrase key="vc_item_edited" module="admin"><![CDATA[The Item has been successfully edited]]></phrase>
+		<phrase key="vc_position_footer" module="admin"><![CDATA[Footer]]></phrase>
+		<phrase key="vc_position_header" module="admin"><![CDATA[Header]]></phrase>
+	</phrases>
+
+	<uninstall>
+		<![CDATA[
+			global $rlDb;
+
+			$sql = "DROP TABLE `" . RL_DBPREFIX . "verification_code`";
+			$rlDb -> query( $sql );
+		]]>
+	</uninstall>
+</plugin>

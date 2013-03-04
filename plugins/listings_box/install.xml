@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="listings_box">
+	<title>Listings Box</title>
+	<description>This plugin create Random, Popular, New block for types of ads in Front-end</description>
+	<author>Dmitry Azavanichus</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>2.1.2</version>
+	<date>20.02.2012</date>
+	<controller>listings_box</controller>
+	<notice/>
+	<files>
+		<file>rlListingsBox.class.php</file>
+		<file>listings_box.block.tpl</file>		
+		<file>admin/listings_box.tpl</file>
+		<file>admin/listings_box.inc.php</file>
+	</files>
+	
+	<install>
+		<![CDATA[
+			global $rlDb;
+			
+			$rlDb -> query( "
+				CREATE TABLE `". RL_DBPREFIX ."listing_box` (
+				  `ID` int(11) NOT NULL AUTO_INCREMENT,
+				  `Type` varchar(255) NOT NULL,
+				  `Box_type` enum('top_rating','popular','recently_added','random') NOT NULL DEFAULT 'recently_added',
+				  `Count` varchar(10) NOT NULL,
+				  `Unique` enum('1','0') NOT NULL DEFAULT '0',
+				  PRIMARY KEY (`ID`)
+				) DEFAULT CHARSET=utf8;" );
+		]]>
+	</install>
+	
+	<phrases>
+		<phrase key="listings_box_ext_box_type" module="ext"><![CDATA[Box Type]]></phrase>
+		<phrase key="listings_box_ext_number_of_listings" module="ext"><![CDATA[Number of listings]]></phrase>
+		<phrase key="listings_box_number_of_listing" module="admin"><![CDATA[Number of listings]]></phrase>
+		<phrase key="listings_box_add_new_block" module="admin"><![CDATA[Add new block]]></phrase>
+		<phrase key="listings_box_block_list" module="admin"><![CDATA[Block list]]></phrase>
+		<phrase key="listings_box_top_rating" module="admin"><![CDATA[Top Rating]]></phrase>
+		<phrase key="listings_box_popular" module="admin"><![CDATA[Popular]]></phrase>
+		<phrase key="listings_box_recently_added" module="admin"><![CDATA[Recently Added]]></phrase>
+		<phrase key="listings_box_random" module="admin"><![CDATA[Random]]></phrase>
+		<phrase key="listings_box_more_listings" module="admin"><![CDATA[Listing of number should not be more 30]]></phrase>
+		<phrase version="2.1.2" key="listings_box_dublicate" module="admin"><![CDATA[Prevent ads displayed in other boxes]]></phrase>
+	</phrases>
+	
+	<updates>
+		<update version="2.0.1" files="admin/listings_box.inc.php"><![CDATA[]]></update>
+		<update version="2.0.2" files="rlListingsBox.class.php"><![CDATA[]]></update>
+		<update version="2.1.0" files="rlListingsBox.class.php,listings_box.block.tpl,admin/listings_box.tpl,admin/listings_box.inc.php"><![CDATA[
+			$GLOBALS['rlDb'] -> query( "ALTER TABLE `".RL_DBPREFIX."listing_box` CHANGE `Type` `Type` VARCHAR( 255 ) NOT NULL" );
+			]]>
+		</update>
+		<update version="2.1.1" files="rlListingsBox.class.php"><![CDATA[]]></update>
+		<update version="2.1.2" files="rlListingsBox.class.php,admin/listings_box.tpl,admin/listings_box.inc.php"><![CDATA[
+			$GLOBALS['rlDb'] -> query( "ALTER TABLE `".RL_DBPREFIX."listing_box` ADD `Unique` ENUM( '1', '0' ) NOT NULL DEFAULT '0'" );
+			]]>
+		</update>
+	</updates>
+	
+	<uninstall>
+        <![CDATA[
+			global $rlDb;
+			$rlDb -> query( "DROP TABLE `". RL_DBPREFIX ."listing_box`" );
+		]]>
+	</uninstall>
+</plugin>

@@ -1,0 +1,73 @@
+/* payAsYouGoCredits plugin styles */
+
+#credits .credit_item {
+ 	background: none repeat scroll 0 0 rgba(255, 255, 255, 0.25);
+    border-radius: 5px 5px 5px 5px;
+    display: inline-block;
+    padding: 10px 0 15px;
+	width: 100%;
+	cursor: pointer;
+}
+#credits .credit_item div.number
+{
+ 	font-size: 22px;
+}
+#credits .credit_item div.credits
+{
+ 	text-transform: uppercase;
+ 	padding: 0 0 7px;
+}
+#credits .credit_item div.price
+{
+ 	font-size: 16px;
+}
+#credits div.active,
+#credits .credit_item:hover {
+    background: none repeat scroll 0 0 rgba(255, 255, 255, 0.5);
+}
+.my_paygc_credits {
+ 	background: none repeat scroll 0 0 rgba(255, 255, 255, 0.25);
+    border-radius: 5px 5px 5px 5px;
+    font-size: 13px;
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    min-height: 63px;
+    margin: 0 0 10px 0;
+    padding: 7px 5px 0px 10px;
+    vertical-align: top;
+}
+.my_paygc_credits div.padding
+{
+	padding: 1px 21px 0;
+}
+.my_paygc_credits div.name,
+.my_paygc_credits label {
+ 	padding: 0;
+    font-size: 14px;
+} 
+.my_paygc_credits label input[type="radio"] {
+ 	margin-right: 8px;
+}
+#paygc_not_sufficient {
+	color: #B33030;
+	font-size: 14px;
+	margin: 5px 15px 0px 0px;
+	padding: 0px 0px 10px 0px;
+}
+#credits table tr td {
+	padding-top: 10px;
+}
+
+.required_amount_sufficient {
+	color: #406819;
+	font-weight: bold;
+	display: inline;
+}
+.required_amount_not_sufficient {
+	color: #B33030;
+	font-weight: bold;
+	display: inline;
+}
+
+/* payAsYouGoCredits plugin styles end */

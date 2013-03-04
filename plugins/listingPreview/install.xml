@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="listingPreview">
+	<title>Listing Preview</title>
+	<description>Allows user to preview own listing before submit</description>
+	<author>John Freeman</author>
+	<owner>Flynax classifieds software</owner>
+	<version>2.0.1</version>
+	<date>03.08.2010</date>
+
+	<files>
+		<file>rlListingPreview.class.php</file>
+		<file>step.tpl</file>
+	</files>
+
+	<hooks>
+		<hook name="pageinfoArea"><![CDATA[
+			global $steps, $lang, $page_info;
+			
+			if ( in_array($page_info['Key'], array('add_listing', 'my_listings')) )
+			{
+				$checkout_step = array_pop($steps);
+				$steps['preview'] = array(
+					'name' => $lang['listingPreview_preview'],
+					'path' => 'preview',
+					'caption' => true
+				);
+				$steps['checkout'] = $checkout_step;
+			}
+		]]></hook>
+		<hook name="addListingBottom"><![CDATA[
+			global $cur_step, $lang, $reefless;
+			
+			if ( $cur_step == 'preview' )
+			{
+				$reefless -> loadClass('ListingPreview', false, 'listingPreview');
+				$GLOBALS['rlListingPreview'] -> step();
+			}
+		]]></hook>
+		<hook name="addListingBottomTpl"><![CDATA[
+			global $cur_step;
+			
+			if ( $cur_step == 'preview' )
+			{
+				$GLOBALS['rlSmarty'] -> display(RL_ROOT . 'plugins' . RL_DS . 'listingPreview' . RL_DS . 'step.tpl');
+			}
+		]]></hook>
+	</hooks>
+
+	<updates>
+		<update version="2.0.1" files="rlListingPreview.class.php,step.tpl"><![CDATA[]]></update>
+	</updates>
+	
+	<phrases>
+		<phrase key="listingPreview_preview" module="frontEnd"><![CDATA[Preview Listing]]></phrase>
+		<phrase key="listingPreview_confirm" module="frontEnd"><![CDATA[Confirm and Continue]]></phrase>
+	</phrases>
+</plugin>

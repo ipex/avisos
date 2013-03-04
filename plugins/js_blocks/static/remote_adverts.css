@@ -1,0 +1,135 @@
+#jListingPaging
+{
+	padding-bottom: 4px;
+}
+
+#jListingPaging span,
+#jListingPaging span.active
+{
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	border: 1px #ffd497 solid;
+	background: #fff3e3;
+	margin: 0 4px 0 0;
+	height: 25px;
+	cursor: pointer;
+	padding: 2px 4px 3px;
+	color: #3C3C3C;
+	font-size: 11px;
+	text-align: center;
+}
+
+#jListingPaging span:hover,
+#jListingPaging span.active
+{
+	border: 1px #dbdbdb solid;
+	background: #f0f0f0;
+	color: black;
+}
+.jListingItem
+{
+	border: 1px #f1f1f1 solid;
+	background: #fafafa;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	margin: 4px 0 0 0;
+	padding: 4px;
+	cursor: pointer;
+	position: relative;
+}
+.jListingItem:hover
+{
+	border: 1px #ffd497 solid;
+	background: #fff3e3;
+}
+.jListingFields
+{
+	padding: 0 0 5px 5px;
+	text-decoration: none;
+}
+.jListingValue
+{
+	color: #666666;
+	font-family: verdana;
+	font-size: 11px;
+}
+.jListingFirst
+{
+	color: #3a5f9c;
+	font-family: verdana;
+	font-size: 12px;
+	font-weight: bold;
+}
+.jListingField
+{
+	color:#444444;
+	font-size:12px;
+}
+.jListingItem img
+{
+	border: 0;
+}
+.jListingLink
+{
+	text-decoration: none;
+}
+.jListingHide
+{
+	display: none;
+}
+.jLinkLast
+{
+	background: #FAFAFA;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px #F1F1F1 solid;
+	height: 19px;
+}
+.jLinkLast a
+{
+	padding: 3px 5px;
+}
+.jLinkLast a#add_listing_remote
+{
+	float: left;
+	color: #d52121;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 11px;
+}
+.jLinkLast a#remote_add_listing_link
+{
+	float: right;
+}
+div.jLocation
+{
+	font-size: 11px;
+	margin: 2px 0 10px;
+}
+
+.jListingItem
+{
+	list-style:none;
+}
+/* custom */
+.jListingItem td
+{
+	padding: 2px 1px 0px!important;
+}
+
+.jListingPage
+{
+	padding: 0;
+}
+
+.jListingTdPicture
+{
+	vertical-align:top !important;
+}
+
+.jListingTdFields
+{
+	vertical-align:top !important;
+}

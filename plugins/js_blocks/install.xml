@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="js_blocks">
+	<title>Remote Ads</title>
+	<description>Enables showing ads of a Flynax powered site on another site.</description>
+	<author>Mike Fletcher</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>2.0.2</version>
+	<date>24.07.2009</date>
+	<controller>remote_adverts</controller>
+
+	<files>
+		<file>rlRemoteAdverts.class.php</file>
+		<file>blocks.tpl</file>
+		<file>blocks.inc.php</file>
+		<file>remote_adverts.tpl</file>
+		<file>remote_adverts.inc.php</file>
+		<file>static/remote_adverts.css</file>
+		<file>static/lib.js</file>
+		<file>admin/remote_adverts.tpl</file>
+		<file>remote_adverts.inc.php</file>
+	</files>
+
+	<install><![CDATA[
+		global $rlDb;
+
+		$sql ="ALTER TABLE `".RL_DBPREFIX."listing_plans` ADD `Remote_adverts` ENUM( '0', '1' ) default '0'";
+		$rlDb->query( $sql );
+
+		$sql ="ALTER TABLE `".RL_DBPREFIX."account_types` ADD `Remote_adverts` ENUM( '0', '1' ) default '0'";
+		$rlDb->query( $sql );
+
+		$sql ="UPDATE `".RL_DBPREFIX."listing_plans` SET `Remote_adverts` = '1' WHERE 1";
+		$rlDb->query( $sql );
+
+		$sql ="UPDATE `".RL_DBPREFIX."account_types` SET `Remote_adverts` = '1' WHERE `Key` LIKE 'dealer' OR `Key` LIKE 'agency'";
+		$rlDb->query( $sql );
+
+		$sql ="SELECT GROUP_CONCAT(`ID`) as `ids` FROM `".RL_DBPREFIX."account_types` WHERE `Key` NOT LIKE 'dealer' AND `Key` NOT LIKE 'agency'";
+		$aids = $rlDb -> getRow( $sql );
+
+		$sql = "UPDATE `".RL_DBPREFIX."pages` SET `Deny` = '".$aids['ids']."' WHERE `Key` = 'remote_adverts'";
+		$rlDb -> query($sql);
+	]]>
+	</install>
+	<hooks>
+		<hook name="apTplListingPlansForm"><![CDATA[
+			echo '<table class="form"><tr><td class="name">'.$GLOBALS['lang']['jl_remote_adverts'].'</td><td class="field">';
+			if( $_POST['remote_adverts'] == '1' )
+			{
+				$remote_adverts_yes = 'checked="checked"';
+			}elseif( $_POST['remote_adverts'] == '0' )
+			{
+				$remote_adverts_no = 'checked="checked"';
+			}else
+			{
+				$remote_adverts_no = 'checked="checked"';
+			}
+					
+			echo '<input '.$remote_adverts_yes.' type="radio" id="ra_yes" name="remote_adverts" value="1" /><label for="ra_yes"> '.$GLOBALS['lang']['yes'].'</label>';
+			echo '<input '.$remote_adverts_no.' type="radio" id="ra_no" name="remote_adverts" value="0" /> <label for="ra_no"> '.$GLOBALS['lang']['no'].'</label>';
+			echo '</td></tr></table>';
+		]]></hook>
+
+		<hook name="apPhpListingPlansPost"><![CDATA[
+			$_POST['remote_adverts'] = $GLOBALS['plan_info']['Remote_adverts'];
+			]]></hook>
+		<hook name="apPhpListingPlansBeforeAdd"><![CDATA[
+			$GLOBALS['data']['Remote_adverts'] = $_POST['remote_adverts'];
+			]]></hook>
+		<hook name="apPhpListingPlansBeforeEdit"><![CDATA[
+			$GLOBALS['update_date']['fields']['Remote_adverts'] = $_POST['remote_adverts'];
+		]]></hook>
+
+		<hook name="apTplAccountTypesForm"><![CDATA[
+			echo '<tr><td class="name">'.$GLOBALS['lang']['jl_remote_adverts'].'</td><td class="field">';
+			if( $_POST['remote_adverts'] == '1' )
+			{
+				$remote_adverts_yes = 'checked="checked"';
+			}elseif( $_POST['remote_adverts'] == '0' )
+			{
+				$remote_adverts_no = 'checked="checked"';
+			}else
+			{
+				$remote_adverts_no = 'checked="checked"';
+			}
+					
+			echo '<input '.$remote_adverts_yes.' type="radio" id="ra_yes" name="remote_adverts" value="1" /><label for="ra_yes"> '.$GLOBALS['lang']['yes'].'</label>';
+			echo '<input '.$remote_adverts_no.' type="radio" id="ra_no" name="remote_adverts" value="0" /> <label for="ra_no"> '.$GLOBALS['lang']['no'].'</label>';
+			echo '</td></tr>';
+		]]></hook>
+
+		<hook name="apPhpAccountTypesPost"><![CDATA[
+			$_POST['remote_adverts'] = $GLOBALS['item_info']['Remote_adverts'];
+			]]></hook>
+		<hook name="apPhpAccountTypesBeforeAdd"><![CDATA[
+			$GLOBALS['data']['Remote_adverts'] = $_POST['remote_adverts'];
+			]]></hook>
+		<hook name="apPhpAccountTypesBeforeEdit"><![CDATA[
+			$GLOBALS['update_date']['fields']['Remote_adverts'] = $_POST['remote_adverts'];
+		]]></hook>			
+	</hooks>
+
+	<phrases>
+		<phrase key="jl_add_box" module="admin"><![CDATA[Add box]]></phrase>
+		<phrase key="jl_box_list" module="admin"><![CDATA[Box list]]></phrase>
+		<phrase key="jl_box_name" module="admin"><![CDATA[Box name]]></phrase>
+		<phrase key="jl_box_code_pre" module="admin"><![CDATA[Code & Preview]]></phrase>
+		<phrase key="jl_box_code" module="admin"><![CDATA[Box code]]></phrase>
+		<phrase key="jl_remote_adverts" module="admin"><![CDATA[Enable remote adverts]]></phrase>
+
+		<phrase key="jl_box_preview" module="common"><![CDATA[Box preview]]></phrase>
+		<phrase key="jl_box_styling" module="common"><![CDATA[Box style]]></phrase>
+		<phrase key="jl_box_settings" module="common"><![CDATA[Box settings]]></phrase>
+		<phrase key="jl_listing_types" module="common"><![CDATA[Listing type]]></phrase>
+		<phrase key="jl_img_width" module="common"><![CDATA[Thumbnail width]]></phrase>
+		<phrase key="jl_img_height" module="common"><![CDATA[Thumbnail height]]></phrase>
+		<phrase key="jl_advert_bg" module="common"><![CDATA[Ad background color]]></phrase>
+		<phrase key="jl_field_first_color" module="common"><![CDATA[Ad title color]]></phrase>
+		<phrase key="jl_field_color" module="common"><![CDATA[Field value color]]></phrase>
+		<phrase key="jl_field_names" module="common"><![CDATA[Field names]]></phrase>
+		<phrase key="jl_field_names_color" module="common"><![CDATA[Field name color]]></phrase>
+		<phrase key="jl_per_page" module="common"><![CDATA[ads on page]]></phrase>
+		<phrase key="jl_limit" module="common"><![CDATA[ads in box]]></phrase>
+		<phrase key="jl_show" module="common"><![CDATA[Show]]></phrase>
+		<phrase key="jl_owner" module="common" version="2.0.1"><![CDATA[Account]]></phrase>
+	</phrases>
+
+	<pages>
+		<page key="remote_adverts" name="Remote Adverts" type="system" path="remote-adverts" get="" controller="remote_adverts" menus="2" tpl="1"><![CDATA[]]></page>
+	</pages>
+	
+	<updates>
+		<update version="2.0.1" files="admin/remote_adverts.inc.php,admin/remote_adverts.tpl,blocks.tpl,rlRemoteAdverts.class.php,static/lib.js,static/remote_adverts.css"><![CDATA[
+			$sql = "DELETE FROM `".RL_DBPREFIX.config` WHERE `Plugin` = 'js_blocks'";
+			$GLOBALS['rlDb'] -> query($sql);
+			]]>
+		</update>
+		<update version="2.0.2" files="remote_adverts.inc.php,remote_adverts.tpl,admin/remote_adverts.tpl,blocks.tpl,rlRemoteAdverts.class.php,static/lib.js,static/remote_adverts.css"><![CDATA[
+			]]>
+		</update>
+	</updates>
+
+	<uninstall>
+		<![CDATA[
+			global $rlDb;
+			$sql ="ALTER TABLE `".RL_DBPREFIX."listing_plans` DROP `Remote_adverts`;";
+			$rlDb->query( $sql );
+
+			$sql ="ALTER TABLE `".RL_DBPREFIX."account_types` DROP `Remote_adverts`;";
+			$rlDb->query( $sql );
+		]]>
+	</uninstall>
+</plugin>

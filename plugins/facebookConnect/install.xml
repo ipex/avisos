@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="facebookConnect">
+	<title>Facebook connect</title>
+	<description>Quick access to the website account are using Facebook account</description>
+	<author>Alex</author>
+	<owner>Flynax Classifieds Software</owner>
+	<version>2.1.1</version>
+	<date>20.12.2011</date>
+	<notices>
+		<notice><![CDATA[Please visit Facebook connect plugin installation instruction to configure the plugin correctly.]]></notice>
+	</notices>
+	
+	<files>
+		<file>rlFBConnect.class.php</file>
+		<file>base_facebook.php</file>
+		<file>facebook.php</file>
+		<file>connect.tpl</file>
+		<file>logout.tpl</file>
+		<file>static/fb_ico.png</file>
+		<file>static/fb_login.png</file>
+		<file>static/fb_logout.gif</file>
+	</files>
+	
+	<install>
+		<![CDATA[
+			global $rlDb;
+
+			$sql = "ALTER TABLE `". RL_DBPREFIX ."accounts` ADD `facebook_ID` VARCHAR(25) NOT NULL, ADD `facebook_pass` VARCHAR(25) NOT NULL";
+			$rlDb -> query( $sql );
+		]]>
+	</install>
+	
+	<hooks>
+		<hook name="specialBlock">
+			<![CDATA[
+				global $reefless, $config;
+				
+				if ( $config['facebookConnect_module'] && $config['facebookConnect_appid'] && $config['facebookConnect_secret'] && $config['facebookConnect_account_type'] )
+				{
+					$reefless -> loadClass( 'FBConnect', false, 'facebookConnect' );
+					$GLOBALS['rlFBConnect'] -> createFBConnectButton();
+				}
+			]]>
+		</hook>
+		<hook version="2.0.5" name="tplUserNavbar">
+			<![CDATA[
+				global $reefless, $config, $lang;
+				
+				if ( $config['facebookConnect_module'] && $config['facebookConnect_appid'] && $config['facebookConnect_secret'] && $config['facebookConnect_account_type'] && !defined( 'IS_LOGIN' ) )
+				{
+					echo '<img onclick="fcLogin();" id="fb-nav-bar" style="cursor:pointer;" src="'. RL_PLUGINS_URL .'facebookConnect/static/fb_ico.png" alt="" title="'. $lang['fConnect_login_title'] .'" />';
+				}
+			]]>
+		</hook>
+		<hook name="accountChangePassword">
+			<![CDATA[
+				global $reefless, $config, $new_password;
+				
+				if ( $config['facebookConnect_module'] && $config['facebookConnect_appid'] && $config['facebookConnect_secret'] && $config['facebookConnect_account_type'] )
+				{
+					$reefless -> loadClass( 'FBConnect', false, 'facebookConnect' );
+					$GLOBALS['rlFBConnect'] -> accountChangePassword( $new_password );
+				}
+			]]>
+		</hook>
+		<hook version="2.1.1" name="tplFooter">
+			<![CDATA[
+				global $rlSmarty, $config;
+				
+				if ( $config['facebookConnect_module'] && $config['facebookConnect_appid'] && $config['facebookConnect_secret'] )
+				{
+					if ( $config['facebookConnect_account_type'] )
+					{
+						$rlSmarty -> display( RL_PLUGINS .'facebookConnect'. RL_DS .'connect.tpl' );
+					}
+					$rlSmarty -> display( RL_PLUGINS .'facebookConnect'. RL_DS .'logout.tpl' );
+				}
+			]]>
+		</hook>
+		<hook version="2.1.1" name="apPhpConfigBottom">
+			<![CDATA[
+				global $rlDb, $lang, $configs;
+				
+				$fGroupID = (int)$rlDb -> getOne('ID', "`Key` = 'facebookConnect' AND `Plugin` = 'facebookConnect'", 'config_groups');
+				if ( !empty( $configs[$fGroupID] ) )
+				{
+					foreach( $configs[$fGroupID] as $key => $entry )
+					{
+						if ( $entry['Key'] == 'facebookConnect_account_type' )
+						{
+							$accountTypes = array();
+							$tmpTypes = $rlDb -> getAll("SELECT `Key` FROM `". RL_DBPREFIX ."account_types` WHERE `Status` = 'active' AND `Key` <> 'visitor' ORDER BY `Position`");
+							foreach( $tmpTypes as $tKey => $tEntry )
+							{
+								array_push( $accountTypes, array( 'ID' => $tEntry['Key'], 'name' => $lang["account_types+name+{$tEntry['Key']}"] ) );
+							}
+							unset( $tmpTypes );
+
+							$configs[$fGroupID][$key]['Values'] = $accountTypes;
+						}
+					}
+				}
+			]]>
+		</hook>
+	</hooks>
+	
+	<configs key="facebookConnect" name="Facebook connect">
+		<![CDATA[]]>
+		<config key="facebookConnect_divider" name="faceBook Connect" type="divider"><![CDATA[]]></config>
+		<config key="facebookConnect_module" name="Use module"  type="bool"><![CDATA[1]]></config>
+		<config version="2.1.1" key="facebookConnect_autoRegPrevent" name="Auto Reg Prevent" description="AutoRegPrevent plugin required"  type="bool"><![CDATA[0]]></config>
+		<config version="2.1.1" key="facebookConnect_accountEmailConfirmation" name="Account confirmation by e-mail"  type="bool"><![CDATA[0]]></config>
+		<config version="2.1.1" key="facebookConnect_accountAdminConfirmation" name="Account activation by Administrator"  type="bool"><![CDATA[0]]></config>
+		<config key="facebookConnect_account_type" name="Account Type" description="facebook Connect creates accounts with the selected type by default." values="" type="select"><![CDATA[]]></config>
+		<config key="facebookConnect_appid" name="App ID" type="text"><![CDATA[]]></config>
+		<config key="facebookConnect_secret" name="App Secret" type="text"><![CDATA[]]></config>
+	</configs>
+
+	<phrases>
+		<phrase key="fConnect_prompt" module="frontEnd"><![CDATA[Sign in with Facebook account<br />Your Facebook email is already in use on the site, please enter a password to the site to sign in or click cancel.]]></phrase>
+		<phrase key="fConnect_try_again" module="frontEnd"><![CDATA[Try again]]></phrase>
+		<phrase key="fConnect_enter_password" module="frontEnd"><![CDATA[Please enter your password. {try_again}.]]></phrase>
+		<phrase key="fConnect_wrong_password" module="frontEnd"><![CDATA[Entered password is wrong. {try_again}.]]></phrase>
+		<phrase key="fConnect_login_title" module="frontEnd"><![CDATA[Log in with Facebook]]></phrase>
+	</phrases>
+	
+	<updates>
+		<update version="2.0.1"><![CDATA[]]></update>
+		<update version="2.0.2" files="connect.tpl,logout.tpl,rlFBConnect.class.php"><![CDATA[]]></update>
+		<update version="2.0.3" files="connect.tpl,rlFBConnect.class.php"><![CDATA[]]></update>
+		<update version="2.0.4" files="rlFBConnect.class.php"><![CDATA[]]></update>
+		<update version="2.0.5" files="connect.tpl,logout.tpl,static/fb_ico.png,static/fb_login.png,static/fb_logout.gif,static/.htaccess"><![CDATA[]]></update>
+		<update version="2.1.0" files="connect.tpl,rlFBConnect.class.php"><![CDATA[]]></update>
+		<update version="2.1.1" files="rlFBConnect.class.php,connect.tpl,logout.tpl"><![CDATA[]]></update>
+	</updates>
+	
+	<uninstall>
+		<![CDATA[
+			global $rlDb;
+
+			$rlDb -> query("ALTER TABLE `". RL_DBPREFIX ."accounts` DROP `facebook_ID`, DROP `facebook_pass`");
+		]]>
+	</uninstall>
+</plugin>
