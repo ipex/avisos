@@ -215,7 +215,7 @@ a.category:visited
 {
 	color: #000000;
 	font-size: 18px;
-	text-transform: uppercase;
+	text-transform: lowercase;
 	text-decoration: none;
 }
 a.category:hover,
