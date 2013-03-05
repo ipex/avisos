@@ -213,15 +213,16 @@ div.categories ul span
 a.category:link,
 a.category:visited
 {
-	color: #000000;
+	color: #205086;
 	font-size: 18px;
 	text-transform: lowercase;
-	text-decoration: none;
+	text-decoration: underline;
 }
 a.category:hover,
 a.category:active 
 {
-	color: #515151;
+	color: #cf0b0b;
+	text-decoration: none;
 }
 .sub_categories a:link,
 .sub_categories a:visited
