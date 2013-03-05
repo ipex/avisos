@@ -1,0 +1,256 @@
+/* print css */
+body
+{
+	margin: 20px 0;
+	padding: 10px;
+	font-family: Verdana;
+	border: 1px #f1f1f1 solid;
+	background: white;
+}
+.sTable
+{
+	border: 0;
+	width: 100%;
+}
+table
+{
+	border-collapse: collapse;
+	border-spacing: 0;
+	border-padding: 0;
+	border: 0px;
+}
+table td
+{
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+h1
+{
+	font-size: 22px;
+	color: #222;
+}
+h3
+{
+	font-size: 16px;
+	margin: 0 0 5px 0;
+	padding: 0 0 7px 0;
+	font-weight: normal;
+}
+input
+{
+	font-size: 16px;
+}
+.sLine
+{
+	border-bottom: 3px silver solid;
+}
+
+.box
+{
+	padding: 15px 0;
+}
+
+.field
+{
+	font-size: 14px;
+	color: #555;
+}
+.value
+{
+	font-size: 15px;
+	color: #222;
+}
+div.username
+{
+	font-weight: bold;
+	padding: 0 0 5px 0;
+}
+table.table td.name
+{
+	padding: 3px 10px 3px 0;
+	color: #555;
+	font-size: 14px;
+}
+
+.listing_group div.value,
+.listing_group div.value_first
+{
+	font-size: 16px;
+	color: #333;
+	font-weight: normal;
+	margin: 3px 0 3px 4px;
+}
+.listing_group div.value_first
+{
+	font-weight: bold;
+}
+.listig_photos
+{
+	margin: 5px 0 0 0;
+}
+.listig_photos div.item
+{
+	margin: 0 5px 5px 0;
+	float: left;
+	height: 85px;
+}
+/* listing details end */
+
+/* field set (gray) block */
+/* top */
+.fs_td_sides
+{
+	width: 7px;
+	height: 16px;
+}
+table.fg .fs_td_center
+{
+	height: 16px;
+	background: url('../img/field_set_center.gif') center repeat-x white;
+}
+
+table.fg .fs_left_top,
+table.fg .fs_right_top
+{
+	width: 7px;
+	height: 9px;
+	background: url('../img/fieldset_corners.gif') 0px 0px no-repeat white;
+	font-size: 1px;
+}
+table.fg .fs_right_top
+{
+	background: url('../img/fieldset_corners.gif') 0px -9px no-repeat white;
+}
+table.fg .fs_center_top
+{
+	background: white;
+	position: relative;
+	padding: 0px 5px;
+	font-weight: bold;
+	float: left;
+}
+table.fg .fs_button_up,
+table.fg .fs_button_down
+{
+	background: url('../img/field_set_button.gif') 0px -16px no-repeat white;
+	width: 16px;
+	height: 16px;
+	font-size: 10px;
+	padding-right: 4px;
+	float: left;
+	cursor: pointer;
+}
+table.fg .fs_button_down
+{
+	background: url('../img/field_set_button.gif') 0px 0px no-repeat white;
+}
+
+/* middle */
+table.fg .fs_td_middle_left,
+table.fg .fs_td_middle_right
+{
+	width: 7px;
+	background: url('../img/field_set_middle.gif') left repeat-y white;
+}
+table.fg .fs_td_middle_right
+{
+	background: url('../img/field_set_middle.gif') right repeat-y white;
+}
+
+/* bottom */
+table.fg .fs_left_bottom,
+table.fg .fs_right_bottom
+{
+	width: 7px;
+	height: 9px;
+	background: url('../img/fieldset_corners.gif') 0px -27px no-repeat white;
+	font-size: 1px;
+}
+table.fg .fs_right_bottom
+{
+	background: url('../img/fieldset_corners.gif') 0px -18px no-repeat white;
+}
+table.fg .fs_center_bottom
+{
+	height: 9px;
+	background: url('../img/field_set_center.gif') bottom repeat-x white;
+	font-size: 1px;
+}
+
+/* field set (gray) block end */
+#listings fieldset.item
+{	
+	margin: 8px 3px 0 3px;
+	padding: 5px;
+	border: 0px;
+	border-top: 1px #e8e7e7 solid;
+	border-bottom: 1px #e8e7e7 solid;
+}
+#listings fieldset.active
+{	
+	background: #eff3fb;
+}
+#listings fieldset.regular
+{	
+	background: white;
+}
+#listings fieldset.featured
+{	
+	background: #fbfbfb;
+}
+.listing
+{
+	margin: 20px 10px 10px 10px;
+}
+/* print css end */
+
+/* fieldset */
+div.fieldset>table
+{
+	width: 100%;
+}
+div.fieldset table td.caption
+{
+	width: 10px;
+	padding: 0 5px 0 0;
+	white-space: nowrap;
+}
+div.fieldset table td.arrow
+{
+	width: 40px;
+	background: url('../img/gallery.png') 0 -1427px no-repeat;
+	cursor: pointer;
+}
+div.fieldset table td.up
+{
+	background-position: 0 -1476px;
+}
+div.fieldset table td.line
+{
+	background: url('../img/gallery.png') 0 -1451px repeat-x;
+}
+div.fieldset div.body
+{
+	padding: 5px 0 15px;
+}
+div.fieldset div.tall
+{
+	padding: 10px 0 25px;
+}
+div.divider
+{
+	padding: 6px 0 8px 0;
+}
+div.list div.divider:first-child
+{
+	padding: 0 0 8px 0;
+}
+/* fieldset end */
+
+div.footer
+{
+	text-align: center;
+	font-size: 14px;
+	padding: 20px 0 0 0;
+}
