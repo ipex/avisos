@@ -665,7 +665,7 @@ div.content_block
 {
 	margin: 0 0 26px 0;
 }
-div.content_block > div.header
+td.header, div.content_block > div.header
 {
 	height: 28px;
 	position: relative;
