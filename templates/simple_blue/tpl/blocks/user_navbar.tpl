@@ -15,6 +15,7 @@
 				<div class="user_button{if $isLogin} pointer{/if}">	
 			<div class="inner">
 				<a title="{$lang.create_account}" class="registration" href="{$rlBase}{if $config.mod_rewrite}{$pages.registration}.html{else}?page={$pages.registration}{/if}">{$lang.registration}</a>
+				<span class="divider">/</span>
 			</div>
 		</div>
 				<div class="user_button{if $isLogin} pointer{/if}">	
