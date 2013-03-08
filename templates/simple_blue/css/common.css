@@ -297,12 +297,10 @@ ul#main_menu li a:visited
 	text-decoration: none;
 	font-size: 16px;
 	color: #205086;
-	font-weight: bold;
 }
 ul#main_menu li a:hover {
 	color: #cf0b0b;
 	text-decoration: underline;
-	font-weight: bold;
 }
 ul#main_menu li a:active,
 ul#main_menu li.active a
