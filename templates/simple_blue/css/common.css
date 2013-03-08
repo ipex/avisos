@@ -107,7 +107,6 @@ div#user_navbar div.user_button div.inner a:link,
 div#user_navbar div.user_button div.inner a:visited
 {
 	color: #ffffff;
-	text-transform: uppercase;
 	text-decoration: none;
 	font-size: 12px;
 }
