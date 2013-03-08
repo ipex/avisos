@@ -6,14 +6,19 @@
 	<div class="user_button{if $isLogin} pointer{/if}">	
 		<div class="inner">
 			{if $isLogin}
+			<div class="inner">
 				<a title="{$lang.account_area}" class="account" href="javascript:void(0)">{$isLogin}<span></span></a>
 				<img src="{$rlTplBase}img/blank.gif" class="arrow" alt="" />
+			</div>
 			{else}
+			<div class="inner">
 				<a title="{$lang.create_account}" class="registration" href="{$rlBase}{if $config.mod_rewrite}{$pages.registration}.html{else}?page={$pages.registration}{/if}">{$lang.registration}</a>
 				<span class="divider">/</span>
+			</div>
+			<div class="inner">
 				<a title="{$lang.login}" class="login" href="javascript:void(0)">{$lang.login}</a>
+			</div>
 			{/if}
-		</div>
 		
 		<div>
 			<div class="bottom_layer">
