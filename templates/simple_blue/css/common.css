@@ -38,7 +38,7 @@ div#main_container_home
 div#header
 {
 	position: relative;
-	background: #f1f1f1;
+/*	background: #f1f1f1; */
 	height: 178px;
 	border-top: 2px #689bd4 solid;
 }
