@@ -364,13 +364,13 @@
 
 							</td>
 
-<!--							{if !$smarty.section.level1.last && $smarty.section.level1.iteration%$config.mf_geo_columns == 0}
+<!--						{if !$smarty.section.level1.last && $smarty.section.level1.iteration%$config.mf_geo_columns == 0} -->
 
 								</tr>
 
 								<tr>
 
-							{/if} -->
+<!--							{/if} -->
 
 						{/section}
 
