@@ -2626,9 +2626,9 @@ div.caption
 {
 	font-size: 16px;
 	padding: 0 0 10px;
-	text-transform: lowercase;
+	text-transform: uppercase;
 	font-weight: bold;
-	color: #cf0b0b;
+	color: #447cba;
 }
 div.caption_light
 {
