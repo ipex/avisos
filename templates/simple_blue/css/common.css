@@ -45,7 +45,7 @@ div#header
 div#header > div.inner
 {
 	margin: 0 auto;
-	height: 128px;
+	height: 105px;
 	width: 960px;
 	position: relative;
 }
