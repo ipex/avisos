@@ -39,13 +39,13 @@ div#header
 {
 	position: relative;
 /*	background: #f1f1f1; */
-	height: 178px;
+	height: 150px;
 	border-top: 2px #689bd4 solid;
 }
 div#header > div.inner
 {
 	margin: 0 auto;
-	height: 105px;
+	height: 110px;
 	width: 960px;
 	position: relative;
 }
@@ -509,7 +509,7 @@ div#content
 }
 div#middle_light div#content
 {
-	padding: 15px 0 50px;
+	padding: 1px 0 50px;
 }
 div#content table.content
 {
