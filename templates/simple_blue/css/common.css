@@ -9,7 +9,7 @@ body
 	font-size: 14px;
 	font-weight: 400;
 	color: #292929;
-	line-height: 1.47\9;
+	line-height: 1,47\9;
 	font-family: 'Source Sans Pro', sans-serif;
 }
 
@@ -509,7 +509,7 @@ div#content
 }
 div#middle_light div#content
 {
-	padding: 1px 0 50px;
+	padding: 10px 0 50px;
 }
 div#content table.content
 {
