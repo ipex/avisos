@@ -528,10 +528,13 @@ div#content table.content>tbody>tr>td
 {
 	vertical-align: top;
 }
-div#content table.content>tbody>tr>td.left,
+div#content table.content>tbody>tr>td.left
+{
+	width: 160
+}
 div#content table.content>tbody>tr>td.right
 {
-	width: 200px;
+	width: 120px;
 }
 div#content table.content>tbody>tr>td.wide,
 div#content table.content>tbody>tr>td.wide
