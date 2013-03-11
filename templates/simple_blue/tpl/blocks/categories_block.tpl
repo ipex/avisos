@@ -38,7 +38,12 @@
 						
 					{foreach from=$categories.$type item='cat' name='fCats'}
 						{rlHook name='tplBetweenCategories'}
-						
+						<p>
+						item={$item}
+						</p>
+						<p>
+						tplBetween={$tplBetweenCategories}
+						</p>
 						<div class="item">
 							<div class="parent-cateory">
 								{rlHook name='tplPreCategory'}
