@@ -40,7 +40,6 @@
 						{rlHook name='tplBetweenCategories'}
 						
 						<div class="item">
-							<p>{$rlHook.name}</p>
 							<div class="parent-cateory">
 								{rlHook name='tplPreCategory'}
 								<a class="category" title="{if $lang[$cat.pTitle]}{$lang[$cat.pTitle]}{else}{$lang[$cat.pName]}{/if}" href="{$rlBase}{if $config.mod_rewrite}{$pages[$listing_type.Page_key]}/{$cat.Path}{if $listing_type.Cat_postfix}.html{else}/{/if}{else}?page={$pages[$listing_type.Page_key]}&amp;category={$cat.ID}{/if}">{$lang[$cat.pName]}</a>
