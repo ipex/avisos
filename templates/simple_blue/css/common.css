@@ -609,7 +609,7 @@ div.side_block > div.body > div
 /* content block */
 div.content_block
 {
-	margin: 0 0 5px 0;
+	margin: 0 0 20px 0;
 }
 div.content_block > div
 {
@@ -643,7 +643,7 @@ div.categories_box div.header
 	background: #f1f1f1;
 	color: #7e7e7e;
 	box-shadow: none;
-	height: 25px;
+	height: 5px;
 }
 div.categories_box > div.body > div
 {
