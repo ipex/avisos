@@ -142,7 +142,7 @@
 				var columns = {/literal}{if $listing_type.Ablock_columns_number}{$listing_type.Ablock_columns_number}{else}3{/if}{literal};
 				var key = '{/literal}{$type|replace:'_':''}{literal}';
 				var width = $('div.categories_'+key).width();
-				var item_width = Math.floor((width - 40) / columns);
+				var item_width = Math.floor((width - 20) / columns);
 				
 				$('div.categories_'+key+' div.item').width(item_width);
 				$('div.categories_'+key).masonry({
