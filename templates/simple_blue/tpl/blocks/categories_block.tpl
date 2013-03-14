@@ -1,7 +1,7 @@
 <!-- categories block -->
 
 {assign var='types' value=','|explode:$types}
-<!--
+
 {if !$block.Tpl}
 	{if $types|@count > 1}
 		<div class="caption" style="padding-bottom: 0;">
@@ -11,7 +11,7 @@
 {else}
 	<div style="padding-top: 5px"></div>
 {/if}
--->
+
 {foreach from=$types item='type'}
 	{if $types|@count > 1}
 		{include file='blocks'|cat:$smarty.const.RL_DS|cat:'fieldset_header.tpl' name=$listing_types.$type.name id='addcatblock'|cat:$listing_types.$type.Key class='categories_padding'}
@@ -142,13 +142,13 @@
 				var columns = {/literal}{if $listing_type.Ablock_columns_number}{$listing_type.Ablock_columns_number}{else}3{/if}{literal};
 				var key = '{/literal}{$type|replace:'_':''}{literal}';
 				var width = $('div.categories_'+key).width();
-				var item_width = Math.floor((width - 40) / columns);
+				var item_width = Math.floor((width - 10) / columns);
 				
 				$('div.categories_'+key+' div.item').width(item_width);
 				$('div.categories_'+key).masonry({
 					itemSelector : '.item',
 					isRTL: rlLangDir == 'rtl' ? true : false,
-					fraudWidth : 10, //Flynax Setting
+					fraudWidth : 5, //Flynax Setting
 					columnWidth : function( containerWidth ) {
 						return containerWidth / columns;
 					}
