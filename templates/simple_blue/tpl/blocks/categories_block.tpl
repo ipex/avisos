@@ -142,13 +142,13 @@
 				var columns = {/literal}{if $listing_type.Ablock_columns_number}{$listing_type.Ablock_columns_number}{else}3{/if}{literal};
 				var key = '{/literal}{$type|replace:'_':''}{literal}';
 				var width = $('div.categories_'+key).width();
-				var item_width = Math.floor((width - 80) / columns);
+				var item_width = Math.floor((width - 10) / columns);
 				
 				$('div.categories_'+key+' div.item').width(item_width);
 				$('div.categories_'+key).masonry({
 					itemSelector : '.item',
 					isRTL: rlLangDir == 'rtl' ? true : false,
-					fraudWidth : 40, //Flynax Setting
+					fraudWidth : 5, //Flynax Setting
 					columnWidth : function( containerWidth ) {
 						return containerWidth / columns;
 					}
