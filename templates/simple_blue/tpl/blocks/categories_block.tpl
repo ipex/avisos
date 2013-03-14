@@ -148,7 +148,7 @@
 				$('div.categories_'+key).masonry({
 					itemSelector : '.item',
 					isRTL: rlLangDir == 'rtl' ? true : false,
-					fraudWidth : 20, //Flynax Setting
+					fraudWidth : 10, //Flynax Setting
 					columnWidth : function( containerWidth ) {
 						return containerWidth / columns;
 					}
