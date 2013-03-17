@@ -66,7 +66,6 @@
 
 	{rlHook name='tplFooter'}
 
-</body>
 {literal}
 <script type="text/javascript">
 
@@ -83,4 +82,5 @@
 
 </script>
 {/literal}
+</home>
 </html>
