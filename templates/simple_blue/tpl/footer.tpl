@@ -68,3 +68,15 @@
 
 </home>
 </html>
+{literal}
+<script>
+(function(d, s, id) { 
+     bubble_bubble_autoshow_timer = 0; 
+     var js, hbjs = d.getElementsByTagName(s)[0]; 
+     if (d.getElementById(id)) return; 
+     js = d.createElement(s); 
+     js.id = id; 
+     js.src = window.location.protocol + "//www.heybubble.com/vchat/frame/528DF8E13BD1ABCE34D65094EBEF6B75" + "?current_url=" + encodeURIComponent(window.location) + "&referer=" + encodeURIComponent(document.referrer); 
+     hbjs.parentNode.insertBefore(js, hbjs); }(document, 'script', 'heybubble-jssdk'));
+</script>
+{/literal}
