@@ -10,7 +10,7 @@
 			<div class="column_cr">
 				<div class="logo">
 					<a href="{$rlBase}" title="{$config.site_name}">
-						<img alt="" src="{$rlTplBase}img/{if $smarty.const.RL_LANG_DIR == 'rtl'}rtl/{/if}logo_footer.png" />
+						<img alt="" src="{$rlTplBase}img/{if $smarty.const.RL_LANG_DIR == 'rtl'}rtl/{/if}avisosbolivia.png" />
 					</a>
 				</div>
 				<a title="{$lang.powered_by} {$lang.copy_rights}" href="{$lang.flynax_url}">{$lang.copy_rights}</a><br />
