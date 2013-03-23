@@ -332,14 +332,14 @@ class rlListings extends reefless
 							break;
 
 						case 'image':
-	
-							$file_name = 'listing_' . $fk . '_' . time() . mt_rand();
+	if( !empty($_FILES[$fields[$key]['Key']]['name']) )
+		{					$file_name = 'listing_' . $fk . '_' . time() . mt_rand();
 							$resize_type = $fields[$key]['Default'];
 							$resolution = strtoupper($resize_type) == 'C' ? explode('|', $fields[$key]['Values']) : $fields[$key]['Values'];
 							
 							$file_name = $this -> rlActions -> upload( $fk, $file_name, $resize_type, $resolution, false, false );
 							$listing[$fk] = $file_name;
-							
+		}					
 							break;
 						
 						case 'file':
