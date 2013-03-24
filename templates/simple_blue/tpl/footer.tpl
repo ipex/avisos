@@ -68,6 +68,7 @@
 
 </home>
 </html>
+<!-- incluir el chat en linea
 {literal}
 <script>
 (function(d, s, id) { 
@@ -80,3 +81,4 @@
      hbjs.parentNode.insertBefore(js, hbjs); }(document, 'script', 'heybubble-jssdk'));
 </script>
 {/literal}
+-->
