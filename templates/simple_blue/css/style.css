@@ -191,7 +191,7 @@ div.categories  div.categoty-column
 }
 div.categories ul div.item
 {
-	padding: 0 0 20px 0;
+/*	padding: 0 0 20px 0;*/
 	float: left;
 	width: 210px;
 }
